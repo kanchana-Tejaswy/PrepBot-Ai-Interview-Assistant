@@ -1,0 +1,27 @@
+{
+  "name": "prepbot-ai-interview-assistant",
+  "version": "1.0.0",
+  "description": "<h1 align=\"center\">🤖 PrepBot – AI Interview Assistant</h1>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kanchana-Tejaswy/PrepBot-Ai-Interview-Assistant.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kanchana-Tejaswy/PrepBot-Ai-Interview-Assistant/issues"
+  },
+  "homepage": "https://github.com/kanchana-Tejaswy/PrepBot-Ai-Interview-Assistant#readme",
+  "dependencies": {
+    "axios": "^1.13.6",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1"
+  }
+}
