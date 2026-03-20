@@ -185,3 +185,76 @@ nextQuestionBtn.addEventListener('click', async () => {
     // TODO: Move to Session Summary Screen
   }
 });
+
+// --- New Variables ---
+const summaryScreen = document.getElementById('summaryScreen');
+const averageScoreElem = document.getElementById('averageScore');
+const summaryStrengths = document.getElementById('summaryStrengths');
+const summaryImprovements = document.getElementById('summaryImprovements');
+const practiceAgainBtn = document.getElementById('practiceAgainBtn');
+
+// Store all AI feedback
+let feedbackList = [];
+
+// --- Modify Next Question Button ---
+nextQuestionBtn.addEventListener('click', async () => {
+  let answer = "";
+  if (interviewMode === "chat") {
+    answer = answerInput.value;
+  } else if (interviewMode === "voice") {
+    answer = "Voice answer placeholder";
+  }
+
+  // Send to AI backend
+  const data = await sendAnswerToAI(answer);
+
+  // Save feedback
+  feedbackList.push(data);
+
+  // Move to next question
+  currentQuestionIndex++;
+  if (currentQuestionIndex < questions.length) {
+    loadQuestion();
+  } else {
+    // Interview completed
+    showSummaryScreen();
+  }
+});
+
+// --- Display Summary Screen ---
+function showSummaryScreen() {
+  interviewScreen.classList.add('hidden');
+  summaryScreen.classList.remove('hidden');
+
+  // Calculate average score
+  const totalScore = feedbackList.reduce((sum, f) => sum + f.score, 0);
+  const avgScore = (totalScore / feedbackList.length).toFixed(1);
+  averageScoreElem.textContent = avgScore;
+
+  // Aggregate strengths & improvements
+  const allStrengths = new Set();
+  const allImprovements = new Set();
+
+  feedbackList.forEach(f => {
+    f.strengths.forEach(s => allStrengths.add(s));
+    f.improvements.forEach(i => allImprovements.add(i));
+  });
+
+  summaryStrengths.innerHTML = Array.from(allStrengths)
+    .map(s => `<li>${s}</li>`).join('');
+  summaryImprovements.innerHTML = Array.from(allImprovements)
+    .map(i => `<li>${i}</li>`).join('');
+}
+
+// --- Practice Again ---
+practiceAgainBtn.addEventListener('click', () => {
+  // Reset variables
+  currentQuestionIndex = 0;
+  feedbackList = [];
+  selectedRole = "";
+  interviewMode = "";
+
+  // Hide summary, show welcome screen
+  summaryScreen.classList.add('hidden');
+  welcomeScreen.classList.remove('hidden');
+});
