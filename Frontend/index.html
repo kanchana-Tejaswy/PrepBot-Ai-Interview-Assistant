@@ -7,126 +7,116 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Container -->
-  <div class="container">
 
-    <!-- Welcome Screen -->
-    <div id="welcomeScreen">
-      <h1>PrepBot</h1>
-      <p>Enhance your interview with AI</p>
-      <button id="startBtn">Start Practice</button>
-    </div>
-
-    <!-- Role Selection Screen -->
-    <div id="roleScreen" class="hidden">
-      <h2>Select Your Role</h2>
-      <p>Choose the type of interview you want to practice:</p>
-
-      <label for="roleSelect">Select Role:</label>
-      <select id="roleSelect">
-        <option value="" disabled selected>-- Choose your role --</option>
-        <!-- Technical Roles -->
-        <optgroup label="Technical Roles">
-          <option value="software_engineer">Software Engineer</option>
-          <option value="frontend_developer">Frontend Developer</option>
-          <option value="backend_developer">Backend Developer</option>
-          <option value="fullstack_developer">Full Stack Developer</option>
-          <option value="data_analyst">Data Analyst</option>
-        </optgroup>
-
-        <!-- Business Roles -->
-        <optgroup label="Business Roles">
-          <option value="product_manager">Product Manager</option>
-          <option value="marketing">Marketing</option>
-          <option value="sales">Sales</option>
-        </optgroup>
-
-        <!-- Academic Roles -->
-        <optgroup label="Academic Roles">
-          <option value="teacher">Teacher</option>
-          <option value="lecturer">Lecturer</option>
-          <option value="professor">Professor</option>
-          <option value="school_incharge">School Incharge</option>
-        </optgroup>
-
-        <!-- Program Interviews -->
-        <optgroup label="Program Interviews">
-          <option value="google_student_ambassador">Google Student Ambassador</option>
-          <option value="uipath_student_developer">UiPath Student Developer Champion</option>
-          <option value="microsoft_student_ambassador">Microsoft Learn Student Ambassador</option>
-          <option value="hackathon">Hackathon</option>
-        </optgroup>
-
-        <!-- Custom Role -->
-        <optgroup label="Custom Role">
-          <option value="custom">Enter your own role</option>
-
-          <!-- Interview Screen -->
-<div id="interviewScreen" class="hidden">
-  <h2>Interview Mode</h2>
-  <p>Selected Role: <span id="displayRole"></span></p>
-
-  <!-- Mode selection -->
-  <div id="modeSelection">
-    <button id="chatModeBtn">💬 Chat Mode</button>
-    <button id="voiceModeBtn">🎤 Voice Mode</button>
+  <!-- 1. Welcome Screen -->
+  <div id="welcomeScreen">
+    <h1>PrepBot</h1>
+    <p>Enhance your interview with AI</p>
+    <button id="startPracticeBtn">Start Practice</button>
   </div>
 
-  <!-- Question Display -->
-  <div id="questionContainer" class="hidden">
-    <p id="questionText">Question will appear here...</p>
-    <textarea id="answerInput" rows="4" placeholder="Type your answer here..." class="hidden"></textarea>
-
-    <!-- For Voice Mode -->
-    <button id="startVoiceBtn" class="hidden">Start Speaking</button>
+  <!-- 2. Role Selection Screen -->
+  <div id="roleScreen" class="hidden">
+    <h2>Select Your Role</h2>
     
-    <button id="nextQuestionBtn" class="hidden">Next Question</button>
-  </div>
-</div>
-        </optgroup>
-      </select>
-      <!-- Session Summary Screen -->
-<div id="summaryScreen" class="hidden">
-  <h2>Interview Completed!</h2>
-  <p>Role Practiced: <span id="summaryRole"></span></p>
-  <p>Average Score: <span id="averageScore"></span>/10</p>
+    <label for="roleDropdown">Role:</label>
+    <select id="roleDropdown">
+      <option value="" disabled selected>Select a role...</option>
+      
+      <optgroup label="Technical">
+        <option value="software_engineer">Software Engineer</option>
+        <option value="frontend">Frontend</option>
+        <option value="backend">Backend</option>
+        <option value="full_stack">Full Stack</option>
+        <option value="data_analyst">Data Analyst</option>
+      </optgroup>
+      
+      <optgroup label="Business">
+        <option value="product_manager">Product Manager</option>
+        <option value="marketing">Marketing</option>
+        <option value="sales">Sales</option>
+      </optgroup>
+      
+      <optgroup label="Academic">
+        <option value="teacher">Teacher</option>
+        <option value="lecturer">Lecturer</option>
+        <option value="professor">Professor</option>
+        <option value="school_incharge">School Incharge</option>
+      </optgroup>
+      
+      <optgroup label="Programs">
+        <option value="google_ambassador">Google Student Ambassador</option>
+        <option value="uipath_developer">UiPath Student Developer</option>
+        <option value="microsoft_ambassador">Microsoft Student Ambassador</option>
+        <option value="hackathon">Hackathon</option>
+      </optgroup>
+      
+      <optgroup label="Custom">
+        <option value="custom">Custom role</option>
+      </optgroup>
+    </select>
 
-  <div>
+    <!-- Hidden by default -->
+    <input type="text" id="customRoleInput" class="hidden" placeholder="Enter your custom role">
+    
+    <!-- Error Message Placeholder -->
+    <p id="roleErrorMessage"></p>
+    
+    <button id="startInterviewBtn">Start Interview</button>
+  </div>
+
+  <!-- 3. Interview Mode Selection Screen -->
+  <div id="modeScreen" class="hidden">
+    <h2>Select Interview Mode</h2>
+    <p>Role: <span id="modeSelectedRole"></span></p>
+    
+    <button id="chatModeBtn">Chat Mode</button>
+    <button id="voiceModeBtn">Voice Mode</button>
+  </div>
+
+  <!-- 4. Interview Screen -->
+  <div id="interviewScreen" class="hidden">
+    <h2>Interview in Progress</h2>
+    
+    <p id="progressIndicator">Question 1 of 5</p>
+    <p id="questionText">Question text will appear here...</p>
+    
+    <!-- Text area for chat mode -->
+    <textarea id="answerTextarea" rows="5" placeholder="Type your answer here..."></textarea>
+    
+    <!-- Voice button for voice mode -->
+    <button id="voiceAnswerBtn" class="hidden">Start Voice Recording</button>
+    
+    <button id="nextQuestionBtn">Next Question</button>
+    
+    <!-- Feedback Section -->
+    <div id="feedbackSection">
+      <h3>Feedback</h3>
+      <p>Score: <span id="feedbackScore"></span></p>
+      
+      <h4>Strengths</h4>
+      <ul id="feedbackStrengths"></ul>
+      
+      <h4>Improvements</h4>
+      <ul id="feedbackImprovements"></ul>
+    </div>
+  </div>
+
+  <!-- 5. Session Summary Screen -->
+  <div id="summaryScreen" class="hidden">
+    <h2>Interview Completed</h2>
+    
+    <p>Average Score: <span id="summaryAverageScore"></span></p>
+    
     <h3>Strengths</h3>
     <ul id="summaryStrengths"></ul>
-  </div>
-
-  <div>
+    
     <h3>Improvements</h3>
     <ul id="summaryImprovements"></ul>
+    
+    <button id="practiceAgainBtn">Practice Again</button>
   </div>
 
-  <button id="practiceAgainBtn">Practice Again</button>
-</div>
-
-<!-- Session Summary Screen -->
-<div id="summaryScreen" class="hidden">
-  <h2>Interview Completed</h2>
-  <p><strong>Average Score:</strong> <span id="averageScore">0</span>/10</p>
-  
-  <h3>Strengths</h3>
-  <ul id="summaryStrengths"></ul>
-
-  <h3>Improvements</h3>
-  <ul id="summaryImprovements"></ul>
-
-  <button id="practiceAgainBtn">Practice Again</button>
-</div>
-
-      <!-- Input for custom role -->
-      <input type="text" id="customRoleInput" class="hidden" placeholder="Enter your role here">
-
-      <button id="startInterviewBtn">Start Interview</button>
-    </div>
-
-  </div>
-
-  <!-- Link JS -->
   <script src="script.js"></script>
 </body>
 </html>

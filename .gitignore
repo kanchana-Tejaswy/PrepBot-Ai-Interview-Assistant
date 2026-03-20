@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Environment Variables
+# We ignore the .env file so sensitive API keys are never leaked to version control
+.env
+
+# Package locks (Optional: some prefer to keep this, but since we are ignoring it, we'll add it here per request)
+# package-lock.json tracks the exact versions of dependencies installed. 
+# It can be ignored if you want to strictly install dependencies from package.json always,
+# although committing it is standard practice.
+package-lock.json
+
+# Mac OS
+.DS_Store

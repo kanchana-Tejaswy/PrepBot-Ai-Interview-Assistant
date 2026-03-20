@@ -1,146 +1,298 @@
-/* Hidden screens */
-.hidden {
-  display: none;
+/* ==========================================================
+   CSS Variables for Color Theme and Specifications
+   ========================================================== */
+:root {
+  --bg-color: #0F172A;
+  --card-bg: #1E293B;
+  --primary: #2563EB;
+  --accent: #7C3AED;
+  --success: #10B981;
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  --border-radius: 16px;
+  --transition-speed: 0.3s ease;
 }
 
-/* Role screen styling */
-#roleScreen {
-  text-align: center;
+/* ==========================================================
+   Global Reset & Base Styles
+   ========================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-#roleSelect, #customRoleInput {
-  padding: 10px;
-  margin: 15px 0;
-  border-radius: 8px;
-  border: none;
-  font-size: 16px;
-  width: 80%;
-  max-width: 400px;
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
 }
 
-#customRoleInput {
-  display: block;
-  margin: 15px auto;
-}
-
-#startInterviewBtn {
-  background-color: #7C3AED; /* Purple accent */
-  color: #F8FAFC;
-  padding: 12px 25px;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-#startInterviewBtn:hover {
-  background-color: #5B21B6; /* Darker purple on hover */
-}
-
-/* Interview Screen */
-#interviewScreen {
-  text-align: center;
-}
-
-#modeSelection button {
-  background-color: #10B981; /* Green-ish button for mode */
-  color: #F8FAFC;
-  padding: 12px 25px;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  cursor: pointer;
-  margin: 10px;
-  transition: background 0.3s;
-}
-
-#modeSelection button:hover {
-  background-color: #047857; /* Darker green */
-}
-
-#answerInput {
-  width: 80%;
-  max-width: 500px;
-  padding: 10px;
-  margin-top: 15px;
-  border-radius: 8px;
-  border: none;
-  font-size: 16px;
-}
-
-#startVoiceBtn, #nextQuestionBtn {
-  background-color: #F59E0B; /* Orange button */
-  color: #F8FAFC;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 15px;
-  font-size: 16px;
-}
-
-#startVoiceBtn:hover, #nextQuestionBtn:hover {
-  background-color: #B45309; /* Darker orange */
-}
-/* AI Feedback styling */
-#feedbackDiv {
-  text-align: left;
-  background-color: #1E293B; /* Dark card background */
-  padding: 15px;
-  margin-top: 15px;
-  border-radius: 10px;
-  box-shadow: 0px 5px 15px rgba(0,0,0,0.2);
-}
-#feedbackDiv ul {
-  margin: 5px 0 10px 20px;
-}
-/* Summary Screen Styling */
+/* ==========================================================
+   Card Layout & Screens Container
+   ========================================================== */
+#welcomeScreen,
+#roleScreen,
+#modeScreen,
+#interviewScreen,
 #summaryScreen {
-  text-align: center;
-  background-color: #1E293B; /* Dark card background */
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0px 10px 25px rgba(0,0,0,0.3);
-  margin: 20px auto;
+  background-color: var(--card-bg);
+  width: 100%;
   max-width: 500px;
+  padding: 40px 30px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  animation: fadeIn var(--transition-speed);
 }
 
-#summaryScreen h2 {
-  color: #10B981; /* Green heading for success */
+/* Utility to hide screens */
+.hidden {
+  display: none !important;
+}
+
+/* ==========================================================
+   Typography
+   ========================================================== */
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  background: linear-gradient(to right, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: var(--text-main);
+}
+
+h3, h4 {
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+p {
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.5;
   margin-bottom: 20px;
 }
 
-#summaryScreen p {
-  color: #F8FAFC;
-  font-size: 18px;
-  margin: 10px 0;
-}
-
-#summaryScreen ul {
-  text-align: left;
-  margin: 10px auto 20px auto;
-  padding-left: 20px;
-  max-width: 400px;
-  color: #F8FAFC;
-  font-size: 16px;
-}
-
-#summaryScreen ul li {
-  margin-bottom: 8px;
-}
-
-#practiceAgainBtn {
-  background-color: #2563EB; /* Primary blue */
-  color: #F8FAFC;
-  padding: 12px 25px;
+/* ==========================================================
+   Buttons
+   ========================================================== */
+button {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: var(--text-main);
   border: none;
-  border-radius: 10px;
-  font-size: 16px;
+  border-radius: 12px;
+  padding: 14px 24px;
+  font-size: 1.1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
+  width: 100%;
+  margin-top: 20px;
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
 }
 
-#practiceAgainBtn:hover {
-  background-color: #1D4ED8; /* Darker blue on hover */
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+#chatModeBtn, #voiceModeBtn {
+  margin-top: 15px;
+}
+
+/* ==========================================================
+   Inputs (Select, Text input, Textarea)
+   ========================================================== */
+label {
+  display: block;
+  text-align: left;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+select,
+input[type="text"],
+textarea {
+  width: 100%;
+  background-color: rgba(15, 23, 42, 0.6); /* Soft background inside card */
+  color: var(--text-main);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+  margin-bottom: 15px;
+}
+
+select:focus,
+input[type="text"]:focus,
+textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* ==========================================================
+   Question Content Styling
+   ========================================================== */
+#progressIndicator {
+  font-size: 0.9rem;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+#questionText {
+  font-size: 1.3rem;
+  color: var(--text-main);
+  font-weight: 500;
+  margin-bottom: 25px;
+  padding: 15px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  border-left: 4px solid var(--primary);
+}
+
+/* ==========================================================
+   Feedback Section & Summary Screen
+   ========================================================== */
+#feedbackSection,
+#summaryScreen {
+  /* Summary screen mimics an inner card setup where lists appear nicely */
+  text-align: left;
+}
+
+.hidden#feedbackSection {
+  display: none !important;
+}
+
+/* Emulating Inner Card for Feedback */
+#feedbackSection {
+  background-color: rgba(15, 23, 42, 0.8);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#feedbackScore,
+#summaryAverageScore {
+  color: var(--success);
+  font-size: 1.8rem;
+  font-weight: bold;
+  display: inline-block;
+  margin-left: 5px;
+}
+
+ul {
+  list-style-type: none;
+  text-align: left;
+  padding-left: 10px;
+  margin-bottom: 15px;
+}
+
+ul li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+}
+
+ul li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+#feedbackStrengths li,
+#summaryStrengths li {
+  color: var(--text-main);
+}
+
+#feedbackImprovements li,
+#summaryImprovements li {
+  color: var(--text-muted); /* Slightly muted/highlighted differently to distinguish */
+}
+
+/* Error Message */
+#roleErrorMessage {
+  color: #ef4444; /* red */
+  margin-top: -5px;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+}
+
+/* Dynamic roles text highlight */
+#modeSelectedRole {
+  color: var(--primary);
+  font-weight: bold;
+}
+
+#summaryScreen h2,
+#summaryScreen p {
+  text-align: center;
+}
+
+/* ==========================================================
+   Animations
+   ========================================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ==========================================================
+   Responsiveness
+   ========================================================== */
+@media (max-width: 600px) {
+  #welcomeScreen,
+  #roleScreen,
+  #modeScreen,
+  #interviewScreen,
+  #summaryScreen {
+    padding: 30px 20px;
+    border-radius: 12px;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
 }

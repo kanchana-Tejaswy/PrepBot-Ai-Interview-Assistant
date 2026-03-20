@@ -2,8 +2,10 @@
   "name": "prepbot-ai-interview-assistant",
   "version": "1.0.0",
   "description": "<h1 align=\"center\">🤖 PrepBot – AI Interview Assistant</h1>",
-  "main": "index.js",
+  "main": "backend/server.js",
   "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
