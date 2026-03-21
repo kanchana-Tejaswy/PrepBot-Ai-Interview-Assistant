@@ -9,6 +9,66 @@ let scores = [];
 let feedbackList = [];
 let isFeedbackShowing = false;
 let dynamicQuestions = [];
+let interviewHistory = [];
+let resumeQuestions = [];
+let usingResume = false;
+
+// ==========================================
+// VOICE INTEGRATION (Web Speech API)
+// ==========================================
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let isRecording = false;
+
+if (SpeechRecognition) {
+  recognition = new SpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  recognition.onresult = (event) => {
+    let fullTranscript = '';
+    for (let i = 0; i < event.results.length; ++i) {
+      fullTranscript += event.results[i][0].transcript;
+    }
+    document.getElementById('answerTextarea').value = fullTranscript;
+  };
+
+  recognition.onerror = (event) => {
+    console.error("Speech Recognition Error:", event.error);
+  };
+}
+
+// ==========================================
+// VOICE ANALYSIS
+// ==========================================
+function analyzeVoice(text) {
+  const words = text.toLowerCase().split(/\s+/);
+  const fillerWords = ["um", "uh", "like", "basically", "literally"];
+  
+  let fillerCount = 0;
+  words.forEach(word => {
+    if (fillerWords.includes(word)) fillerCount++;
+  });
+
+  const strengths = [];
+  const improvements = [];
+
+  if (words.length >= 20 && words.length <= 150) {
+    strengths.push("Voice Analysis: Good speech length and clarity.");
+  } else if (words.length < 20) {
+    improvements.push("Voice Analysis: Try to speak more and elaborate on your points.");
+  } else {
+    improvements.push("Voice Analysis: You speak at length. Ensure you remain concise.");
+  }
+
+  if (fillerCount >= 2) {
+    improvements.push(`Voice Analysis: Too many filler words detected (${fillerCount}). Try to speak more confidently.`);
+  } else if (fillerCount === 0 && words.length > 10) {
+    strengths.push("Voice Analysis: Excellent voice clarity, no filler words detected.");
+  }
+
+  return { strengths, improvements };
+}
 
 // ==========================================
 // ROLE-BASED QUESTION GENERATOR
@@ -72,85 +132,36 @@ function generateFollowUp(answer) {
   
   // If extremely short
   if (answer.trim().length > 0 && answer.trim().length <= 25) {
-    return "That was quite brief. Can you elaborate significantly more on that point in detail?";
+    return "Can you elaborate more?";
   }
   
   // Topic-based follow-ups
   if (ansLower.includes("project")) {
-    return "You mentioned a project. What specific technical or logical challenges did you face during that project, and how did you resolve them?";
+    return "What challenges did you face in that project?";
   }
-  if (ansLower.includes("team") || ansLower.includes("manager") || ansLower.includes("lead")) {
-    return "Regarding your team interactions, how do you handle intense disagreements or conflicts with colleagues over critical decisions?";
-  }
-  if (ansLower.includes("bug") || ansLower.includes("error") || ansLower.includes("issue")) {
-    return "When you encountered that issue, what was your exact step-by-step diagnostic process to find the root cause?";
+  if (ansLower.includes("team")) {
+    return "What was your role in the team?";
   }
 
   return null; // No follow-up needed
 }
 
 // ==========================================
-// REALISTIC ANSWER EVALUATOR
+// REALISTIC ANSWER EVALUATOR (API)
 // ==========================================
-function evaluateAnswer(answer) {
-  const words = answer.toLowerCase().split(/\s+/);
-  const length = answer.trim().length;
-  
-  // Lexical Analysis Keywords
-  const keywords = ["project", "experience", "team", "built", "developed", "managed", "led", "created", "designed", "improved", "strategy", "data", "users", "code", "system", "app", "application", "learning", "growth", "challenge", "solution", "agile", "architecture", "deliver", "measure", "metric"];
-  
-  let keywordCount = 0;
-  words.forEach(word => {
-    if (keywords.some(kw => word.includes(kw))) {
-      keywordCount++;
-    }
-  });
-
-  let score = 5;
-  let strengths = [];
-  let improvements = [];
-
-  // Short Answer Evaluator
-  if (length < 30) {
-    score = Math.floor(Math.random() * 2) + 4; // Score 4-5
-    improvements.push("Your answer severely lacks depth and detail.");
-    improvements.push("Elaborate significantly more on your points to prove competency.");
-    strengths.push("Direct and concise response.");
-  } 
-  // Medium Answer Evaluator
-  else if (length >= 30 && length < 100) {
-    score = Math.floor(Math.random() * 2) + 6; // Score 6-7
-    if (keywordCount >= 2) {
-      score += 1; // Bump to 7/8 if keywords hit
-      strengths.push("Good use of relevant professional terminology.");
-    }
-    strengths.push("Adequate structure and clarity in your explanation.");
-    improvements.push("Provide more concrete examples and quantifiable results.");
-    improvements.push("Expand deeper on the 'why' and 'how' of your actions.");
-  } 
-  // Detailed Answer Evaluator
-  else {
-    score = Math.floor(Math.random() * 2) + 8; // Score 8-9
-    if (keywordCount >= 4) {
-      score = 9; 
-      strengths.push("Excellent integration of industry-specific language and action verbs.");
-    }
-    if (score > 10) score = 10;
-    
-    strengths.push("Strong communication, impressive depth, and confidence.");
-    strengths.push("Well-structured, comprehensive, and convincing response.");
-    if (keywordCount < 2) {
-      improvements.push("Try to incorporate stronger action words (e.g., led, built, architected).");
-    } else {
-      improvements.push("Ensure you remain completely focused and avoid rambling.");
-    }
+async function evaluateAnswerAPI(question, answer, role, history) {
+  try {
+    const response = await fetch('http://localhost:5000/api/interview/evaluate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question, answer, role, history })
+    });
+    if (!response.ok) throw new Error("API request failed");
+    return await response.json();
+  } catch (error) {
+    console.error("Evaluation Error:", error);
+    return { error: true };
   }
-
-  // Cap score limits securely
-  if (score > 10) score = 10;
-  if (score < 1) score = 1;
-
-  return { score, strengths, improvements };
 }
 
 // ==========================================
@@ -177,6 +188,12 @@ const voiceAnswerBtn = document.getElementById('voiceAnswerBtn');
 const roleDropdown = document.getElementById('roleDropdown');
 const customRoleInput = document.getElementById('customRoleInput');
 const roleErrorMessage = document.getElementById('roleErrorMessage');
+const resumeUploadInput = document.getElementById('resumeUploadInput');
+const uploadResumeBtn = document.getElementById('uploadResumeBtn');
+const uploadStatusMessage = document.getElementById('uploadStatusMessage');
+const resumeSkillsSection = document.getElementById('resumeSkillsSection');
+const resumeSkillsList = document.getElementById('resumeSkillsList');
+
 const modeSelectedRole = document.getElementById('modeSelectedRole');
 const progressIndicator = document.getElementById('progressIndicator');
 const questionText = document.getElementById('questionText');
@@ -216,8 +233,13 @@ function loadQuestion() {
     answerTextarea.classList.remove('hidden');
     voiceAnswerBtn.classList.add('hidden');
   } else {
-    answerTextarea.classList.add('hidden');
+    answerTextarea.classList.remove('hidden'); // Show textarea to display transcribed text
     voiceAnswerBtn.classList.remove('hidden');
+    voiceAnswerBtn.innerText = "Start Recording";
+    if (isRecording && recognition) {
+      recognition.stop();
+    }
+    isRecording = false;
   }
 
   feedbackSection.classList.add('hidden');
@@ -274,8 +296,73 @@ roleDropdown.addEventListener('change', () => {
   roleErrorMessage.innerText = ""; 
 });
 
+// ==========================================
+// RESUME UPLOAD LOGIC
+// ==========================================
+uploadResumeBtn.addEventListener('click', async () => {
+  const file = resumeUploadInput.files[0];
+  if (!file) {
+    uploadStatusMessage.innerText = "❌ Please select a PDF file first.";
+    uploadStatusMessage.style.color = "red";
+    return;
+  }
+
+  if (file.type !== "application/pdf") {
+    uploadStatusMessage.innerText = "❌ Only PDF files are supported.";
+    uploadStatusMessage.style.color = "red";
+    return;
+  }
+
+  uploadStatusMessage.innerText = "⏳ Uploading and analyzing resume...";
+  uploadStatusMessage.style.color = "blue";
+  uploadResumeBtn.disabled = true;
+
+  const formData = new FormData();
+  formData.append("resume", file);
+
+  try {
+    const response = await fetch('http://localhost:5000/api/interview/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) throw new Error("Upload failed.");
+
+    const data = await response.json();
+    
+    // Success
+    resumeQuestions = data.questions || [];
+    usingResume = true;
+    selectedRole = "Resume-Based Candidate";
+    
+    uploadStatusMessage.innerText = "✅ Resume analyzed successfully! (" + file.name + ")";
+    uploadStatusMessage.style.color = "lime";
+    
+    // Display Skills
+    resumeSkillsList.innerHTML = "";
+    (data.skills || []).forEach(skill => {
+      resumeSkillsList.innerHTML += `<li>${skill}</li>`;
+    });
+    resumeSkillsSection.classList.remove('hidden');
+
+  } catch (error) {
+    console.error(error);
+    uploadStatusMessage.innerText = "❌ Failed to parse resume. Using default questions.";
+    uploadStatusMessage.style.color = "red";
+    usingResume = false;
+  } finally {
+    uploadResumeBtn.disabled = false;
+  }
+});
+
 // 3. Role Selection -> Mode Selection
 startInterviewBtn.addEventListener('click', () => {
+  if (usingResume) {
+    modeSelectedRole.innerText = selectedRole;
+    showScreen(screens.mode);
+    return;
+  }
+
   const roleValue = roleDropdown.value;
   
   if (!roleValue) {
@@ -301,60 +388,123 @@ startInterviewBtn.addEventListener('click', () => {
 // 4. Mode Selection -> Interview Generation
 chatModeBtn.addEventListener('click', () => {
   interviewMode = "chat";
-  dynamicQuestions = generateQuestionsByRole(selectedRole);
+  if (usingResume && resumeQuestions.length > 0) {
+    dynamicQuestions = [...resumeQuestions];
+  } else {
+    dynamicQuestions = generateQuestionsByRole(selectedRole);
+  }
   showScreen(screens.interview);
   loadQuestion();
 });
 
 voiceModeBtn.addEventListener('click', () => {
   interviewMode = "voice";
-  dynamicQuestions = generateQuestionsByRole(selectedRole);
+  if (usingResume && resumeQuestions.length > 0) {
+    dynamicQuestions = [...resumeQuestions];
+  } else {
+    dynamicQuestions = generateQuestionsByRole(selectedRole);
+  }
   showScreen(screens.interview);
   loadQuestion();
 });
 
+// ==========================================
+// VOICE BUTTON LOGIC
+// ==========================================
+voiceAnswerBtn.addEventListener('click', () => {
+  if (!SpeechRecognition) {
+    alert("Voice not supported");
+    return;
+  }
+
+  if (isRecording) {
+    recognition.stop();
+    isRecording = false;
+    voiceAnswerBtn.innerText = "Start Recording";
+  } else {
+    answerTextarea.value = ""; // Clear for new recording
+    recognition.start();
+    isRecording = true;
+    voiceAnswerBtn.innerText = "Stop Recording (Listening...)";
+    answerTextarea.placeholder = "Listening to your answer...";
+  }
+});
+
 // 5. Submit / Validate / Evaluate / Follow-up Flow
-nextQuestionBtn.addEventListener('click', () => {
+nextQuestionBtn.addEventListener('click', async () => {
   
   if (!isFeedbackShowing) {
+    // If recording is still active when submitting, stop it
+    if (isRecording && recognition) {
+      recognition.stop();
+      isRecording = false;
+      voiceAnswerBtn.innerText = "Start Recording";
+    }
+
     // Evaluation Stage
-    const answer = interviewMode === "chat" ? answerTextarea.value.trim() : "Voice answer recorded";
+    const answer = answerTextarea.value.trim();
     
-    if (interviewMode === "chat" && !answer) {
-      answerTextarea.placeholder = "❌ Please type an answer before we proceed...";
+    if (!answer) {
+      answerTextarea.placeholder = "❌ Please provide an answer before we proceed...";
       answerTextarea.style.border = "1px solid #ef4444";
       return;
     }
 
+    // Show Loading State
+    const originalBtnText = nextQuestionBtn.innerText;
+    nextQuestionBtn.innerText = "Analyzing answer...";
+    nextQuestionBtn.disabled = true;
+
+    // Call Backend API
+    const currentQuestion = dynamicQuestions[currentQuestionIndex];
+    const evaluation = await evaluateAnswerAPI(currentQuestion, answer, selectedRole, interviewHistory);
+
+    if (evaluation.error) {
+      alert("AI evaluation failed. Try again.");
+      nextQuestionBtn.innerText = originalBtnText;
+      nextQuestionBtn.disabled = false;
+      return;
+    }
+
+    // Analyze voice and append feedback if voice mode
+    if (interviewMode === "voice") {
+      const voiceFeedback = analyzeVoice(answer);
+      evaluation.strengths = (evaluation.strengths || []).concat(voiceFeedback.strengths);
+      evaluation.improvements = (evaluation.improvements || []).concat(voiceFeedback.improvements);
+    }
+
+    // Save history
     answers.push(answer);
-    
-    // Evaluate answer precisely based on length and lexicon
-    const evaluation = evaluateAnswer(answer);
     scores.push(evaluation.score);
     feedbackList.push(evaluation);
+    interviewHistory.push({ question: currentQuestion, answer });
 
     // Apply exact feedback to the UI
     feedbackScore.innerText = evaluation.score;
     
     feedbackStrengths.innerHTML = "";
-    evaluation.strengths.forEach(s => { feedbackStrengths.innerHTML += `<li>${s}</li>`; });
+    (evaluation.strengths || []).forEach(s => { feedbackStrengths.innerHTML += `<li>${s}</li>`; });
 
     feedbackImprovements.innerHTML = "";
-    evaluation.improvements.forEach(i => { feedbackImprovements.innerHTML += `<li>${i}</li>`; });
+    (evaluation.improvements || []).forEach(i => { feedbackImprovements.innerHTML += `<li>${i}</li>`; });
 
     feedbackSection.classList.remove('hidden');
 
     // Intelligent Follow-up Check
     const followUp = generateFollowUp(answer);
-    const isCurrentQuestionAFollowUp = dynamicQuestions[currentQuestionIndex].startsWith("[Follow-up]");
+    const isCurrentQuestionAFollowUp = currentQuestion.startsWith("[Follow-up]");
     
-    // Only insert a follow up if we are not already asking a follow up (prevents infinite loop!)
+    // Insert rule-based follow up OR AI-generated adaptive nextQuestion
     if (followUp && !isCurrentQuestionAFollowUp) {
       dynamicQuestions.splice(currentQuestionIndex + 1, 0, "[Follow-up] " + followUp);
+    } else if (evaluation.nextQuestion) {
+      // Append Adaptive AI Question
+      dynamicQuestions.splice(currentQuestionIndex + 1, 0, evaluation.nextQuestion);
     }
 
     isFeedbackShowing = true;
     nextQuestionBtn.innerText = "Proceed to Next Question";
+    nextQuestionBtn.disabled = false;
 
   } else {
     // Proceed Stage
@@ -371,7 +521,14 @@ practiceAgainBtn.addEventListener('click', () => {
   scores = [];
   feedbackList = [];
   dynamicQuestions = [];
+  interviewHistory = [];
   isFeedbackShowing = false;
+
+  resumeQuestions = [];
+  usingResume = false;
+  resumeUploadInput.value = "";
+  uploadStatusMessage.innerText = "";
+  resumeSkillsSection.classList.add('hidden');
 
   roleDropdown.selectedIndex = 0;
   customRoleInput.value = "";

@@ -61,6 +61,20 @@
     
     <!-- Error Message Placeholder -->
     <p id="roleErrorMessage"></p>
+
+    <!-- Resume Feature -->
+    <hr style="margin: 20px 0; border: 1px solid rgba(255,255,255,0.1);">
+    <h3>OR: Upload Your Resume</h3>
+    <p style="font-size: 0.9em; margin-bottom: 10px;">We'll automatically extract your skills to generate personalized interview questions.</p>
+    <input type="file" id="resumeUploadInput" accept=".pdf">
+    <button id="uploadResumeBtn">Extract & Generate</button>
+    <p id="uploadStatusMessage"></p>
+    
+    <div id="resumeSkillsSection" class="hidden" style="margin-top: 15px; border: 1px solid rgba(255,255,255,0.2); padding: 10px; border-radius: 8px;">
+      <h4>Extracted Skills:</h4>
+      <ul id="resumeSkillsList" style="font-size: 0.9em; padding-left: 20px;"></ul>
+    </div>
+    <br>
     
     <button id="startInterviewBtn">Start Interview</button>
   </div>

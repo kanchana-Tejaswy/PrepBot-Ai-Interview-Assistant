@@ -11,11 +11,11 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api', interviewRoutes);
+app.use('/api/interview', interviewRoutes);
 
 // Health check endpoint
 app.get('/', (req, res) => {
-  res.send('PrepBot API is running.');
+  res.send('PrepBot API is running strictly and professionally.');
 });
 
 // Start Server
