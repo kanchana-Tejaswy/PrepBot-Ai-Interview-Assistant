@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PrepBot - AI Interview Simulator</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -13,6 +14,7 @@
     <h1>PrepBot</h1>
     <p>Enhance your interview with AI</p>
     <button id="startPracticeBtn">Start Practice</button>
+    <button id="viewDashboardBtnWelcome" class="secondary-btn">View Dashboard</button>
   </div>
 
   <!-- 2. Role Selection Screen -->
@@ -77,6 +79,7 @@
     <br>
     
     <button id="startInterviewBtn">Start Interview</button>
+    <button id="backToWelcomeBtn" class="secondary-btn" style="margin-top: 10px;">Back to Home</button>
   </div>
 
   <!-- 3. Interview Mode Selection Screen -->
@@ -86,11 +89,13 @@
     
     <button id="chatModeBtn">Chat Mode</button>
     <button id="voiceModeBtn">Voice Mode</button>
+    <button id="backToRoleBtn" class="secondary-btn" style="margin-top: 10px;">Back to Roles</button>
   </div>
 
   <!-- 4. Interview Screen -->
   <div id="interviewScreen" class="hidden">
     <h2>Interview in Progress</h2>
+    <h3 id="finalRoundLabel" class="hidden" style="color: var(--accent); margin-top: -10px; margin-bottom: 15px;">Final Mock Interview</h3>
     
     <p id="progressIndicator">Question 1 of 5</p>
     <p id="questionText">Question text will appear here...</p>
@@ -114,13 +119,28 @@
       <h4>Improvements</h4>
       <ul id="feedbackImprovements"></ul>
     </div>
+    
+    <button id="backToModeBtn" class="secondary-btn" style="margin-top: 20px;">Quit Interview</button>
   </div>
 
   <!-- 5. Session Summary Screen -->
   <div id="summaryScreen" class="hidden">
     <h2>Interview Completed</h2>
     
-    <p>Average Score: <span id="summaryAverageScore"></span></p>
+    <div style="display: flex; justify-content: space-around; margin: 20px 0; background: rgba(255,255,255,0.03); border-radius: 12px; padding: 15px;">
+      <div>
+        <p style="margin-bottom: 5px; font-size: 0.85em;">Phase 1</p>
+        <span id="summaryNormalScore" style="color: var(--success); font-size: 1.5rem; font-weight: bold;">0</span>
+      </div>
+      <div>
+        <p style="margin-bottom: 5px; font-size: 0.85em;">Final Round</p>
+        <span id="summaryFinalScore" style="color: var(--accent); font-size: 1.5rem; font-weight: bold;">0</span>
+      </div>
+      <div>
+        <p style="margin-bottom: 5px; font-size: 0.85em;">Combined Avg</p>
+        <span id="summaryAverageScore" style="color: var(--primary); font-size: 1.8rem; font-weight: bold;">0</span>
+      </div>
+    </div>
     
     <h3>Strengths</h3>
     <ul id="summaryStrengths"></ul>
@@ -129,6 +149,55 @@
     <ul id="summaryImprovements"></ul>
     
     <button id="practiceAgainBtn">Practice Again</button>
+    <button id="viewDashboardBtnSummary" class="secondary-btn">View Dashboard</button>
+  </div>
+
+  <!-- 6. Analytics Dashboard Screen -->
+  <div id="dashboardScreen" class="hidden dashboard-container">
+    <h2>Analytics Dashboard</h2>
+    
+    <div id="dashboardContent" class="hidden">
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <h4>Total</h4>
+          <p id="dashTotalInterviews">0</p>
+        </div>
+        <div class="metric-card">
+          <h4>Avg Score</h4>
+          <p id="dashAvgScore">0</p>
+        </div>
+        <div class="metric-card">
+          <h4>Best Score</h4>
+          <p id="dashBestScore">0</p>
+        </div>
+      </div>
+
+      <div class="chart-container" style="position: relative; height:30vh; width:100%; margin-top: 20px;">
+        <canvas id="scoreChart"></canvas>
+      </div>
+
+      <div class="analysis-grid">
+        <div class="analysis-card">
+          <h4>Top Strengths</h4>
+          <ul id="dashTopStrengths"></ul>
+        </div>
+        <div class="analysis-card">
+          <h4>Top Improvements</h4>
+          <ul id="dashTopImprovements"></ul>
+        </div>
+      </div>
+
+      <div class="history-section">
+        <h3>Interview History</h3>
+        <ul id="dashHistoryList" class="history-list"></ul>
+      </div>
+    </div>
+
+    <div id="dashboardEmptyState">
+      <p style="margin: 40px 0;">No interviews yet. Complete your first practice to see analytics!</p>
+    </div>
+
+    <button id="backToHomeBtn">Back to Home</button>
   </div>
 
   <script src="script.js"></script>

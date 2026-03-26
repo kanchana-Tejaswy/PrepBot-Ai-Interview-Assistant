@@ -276,6 +276,111 @@ ul li::before {
 }
 
 /* ==========================================================
+   Dashboard Styles
+   ========================================================== */
+#dashboardScreen {
+  background-color: var(--card-bg);
+  width: 100%;
+  max-width: 800px; /* Wider for dashboard */
+  padding: 40px 30px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  animation: fadeIn var(--transition-speed);
+}
+
+.metrics-grid, .analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.metric-card {
+  background-color: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+}
+
+.metric-card p {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--success);
+  margin-bottom: 0;
+  margin-top: 5px;
+}
+
+.analysis-card {
+  background-color: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 15px;
+  text-align: left;
+}
+
+.analysis-card h4 {
+  text-align: center;
+  margin-bottom: 10px;
+  color: var(--text-main);
+}
+
+.history-section {
+  text-align: left;
+  margin-top: 30px;
+  background-color: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.history-list {
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-item-role {
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.history-item-date {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.history-item-score {
+  font-weight: bold;
+  color: var(--success);
+}
+
+.secondary-btn {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--text-main);
+  box-shadow: none;
+}
+
+.secondary-btn:hover {
+  background: rgba(124, 58, 237, 0.2);
+  transform: translateY(-2px);
+}
+
+/* ==========================================================
    Responsiveness
    ========================================================== */
 @media (max-width: 600px) {

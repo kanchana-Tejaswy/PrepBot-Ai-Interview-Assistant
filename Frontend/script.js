@@ -6,6 +6,9 @@ let interviewMode = "";
 let currentQuestionIndex = 0;
 let answers = [];
 let scores = [];
+let normalScores = [];
+let finalScores = [];
+let isFinalRound = false;
 let feedbackList = [];
 let isFeedbackShowing = false;
 let dynamicQuestions = [];
@@ -147,11 +150,16 @@ function generateFollowUp(answer) {
 }
 
 // ==========================================
+// API BASE URL
+// ==========================================
+const API_BASE_URL = window.location.origin;
+
+// ==========================================
 // REALISTIC ANSWER EVALUATOR (API)
 // ==========================================
 async function evaluateAnswerAPI(question, answer, role, history) {
   try {
-    const response = await fetch('http://localhost:5000/api/interview/evaluate', {
+    const response = await fetch(`${API_BASE_URL}/api/interview/evaluate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question, answer, role, history })
@@ -172,7 +180,8 @@ const screens = {
   role: document.getElementById('roleScreen'),
   mode: document.getElementById('modeScreen'),
   interview: document.getElementById('interviewScreen'),
-  summary: document.getElementById('summaryScreen')
+  summary: document.getElementById('summaryScreen'),
+  dashboard: document.getElementById('dashboardScreen')
 };
 
 // Buttons
@@ -183,6 +192,17 @@ const voiceModeBtn = document.getElementById('voiceModeBtn');
 const nextQuestionBtn = document.getElementById('nextQuestionBtn');
 const practiceAgainBtn = document.getElementById('practiceAgainBtn');
 const voiceAnswerBtn = document.getElementById('voiceAnswerBtn');
+const viewDashboardBtnWelcome = document.getElementById('viewDashboardBtnWelcome');
+const viewDashboardBtnSummary = document.getElementById('viewDashboardBtnSummary');
+const backToHomeBtn = document.getElementById('backToHomeBtn');
+
+// New UI Elements
+const backToWelcomeBtn = document.getElementById('backToWelcomeBtn');
+const backToRoleBtn = document.getElementById('backToRoleBtn');
+const backToModeBtn = document.getElementById('backToModeBtn');
+const finalRoundLabel = document.getElementById('finalRoundLabel');
+const summaryNormalScore = document.getElementById('summaryNormalScore');
+const summaryFinalScore = document.getElementById('summaryFinalScore');
 
 // Inputs & UI Elements
 const roleDropdown = document.getElementById('roleDropdown');
@@ -251,13 +271,50 @@ function getNextQuestion() {
   if (currentQuestionIndex < dynamicQuestions.length) {
     loadQuestion();
   } else {
-    showSummary();
+    // End of Phase
+    if (!isFinalRound) {
+      isFinalRound = true;
+      dynamicQuestions = generateFinalRoundQuestions();
+      currentQuestionIndex = 0;
+      if(finalRoundLabel) finalRoundLabel.classList.remove('hidden');
+      loadQuestion();
+    } else {
+      showSummary();
+    }
   }
 }
 
+function generateFinalRoundQuestions() {
+  return [
+    "Why should we hire you over other equally qualified candidates?",
+    "Tell me about a significant failure. What went wrong and what did you learn?",
+    "Explain your most complex project in detail, focusing on your specific contribution.",
+    "What makes you fundamentally different from other professionals in this field?",
+    "Describe a time you strongly disagreed with your supervisor. How did you handle it?",
+    "How do you process and deliver negative feedback to a peer?",
+    "Where do you genuinely see your career progressing in the next five years?",
+    "Walk me through your methodology for prioritizing tasks under extreme pressure.",
+    "Tell me about a time you had to pivot a major decision mid-project.",
+    "What is your greatest professional weakness, and how do you mitigate it?",
+    "Describe a technically demanding concept to me as if I were a beginner.",
+    "How do you ensure continuous learning and stay current in your industry?",
+    "Tell me about an instance where you worked with a difficult team member.",
+    "What are your expectations for our company culture and management style?",
+    "Do you have any questions for me regarding this role or the company?"
+  ];
+}
+
 function showSummary() {
+  const normTotal = normalScores.reduce((sum, current) => sum + current, 0);
+  const normAvg = normalScores.length > 0 ? (normTotal / normalScores.length).toFixed(1) : "0.0";
+  if(summaryNormalScore) summaryNormalScore.innerText = normAvg;
+
+  const finalTotal = finalScores.reduce((sum, current) => sum + current, 0);
+  const finalAvg = finalScores.length > 0 ? (finalTotal / finalScores.length).toFixed(1) : "0.0";
+  if(summaryFinalScore) summaryFinalScore.innerText = finalAvg;
+
   const totalScore = scores.reduce((sum, current) => sum + current, 0);
-  const avgScore = (totalScore / scores.length).toFixed(1);
+  const avgScore = scores.length > 0 ? (totalScore / scores.length).toFixed(1) : "0.0";
   summaryAverageScore.innerText = avgScore;
 
   const allStrengths = new Set();
@@ -273,6 +330,19 @@ function showSummary() {
 
   summaryImprovements.innerHTML = "";
   allImprovements.forEach(i => { summaryImprovements.innerHTML += `<li>${i}</li>`; });
+
+  // SAVE TO LOCALSTORAGE
+  const interviewData = {
+    role: selectedRole,
+    date: new Date().toLocaleDateString(),
+    score: parseFloat(avgScore) || 0,
+    strengths: Array.from(allStrengths),
+    improvements: Array.from(allImprovements)
+  };
+  
+  let pastInterviews = JSON.parse(localStorage.getItem('prepbot_history')) || [];
+  pastInterviews.push(interviewData);
+  localStorage.setItem('prepbot_history', JSON.stringify(pastInterviews));
 
   showScreen(screens.summary);
 }
@@ -321,7 +391,7 @@ uploadResumeBtn.addEventListener('click', async () => {
   formData.append("resume", file);
 
   try {
-    const response = await fetch('http://localhost:5000/api/interview/upload', {
+    const response = await fetch(`${API_BASE_URL}/api/interview/upload`, {
       method: 'POST',
       body: formData
     });
@@ -476,6 +546,11 @@ nextQuestionBtn.addEventListener('click', async () => {
     // Save history
     answers.push(answer);
     scores.push(evaluation.score);
+    if (isFinalRound) {
+      finalScores.push(evaluation.score);
+    } else {
+      normalScores.push(evaluation.score);
+    }
     feedbackList.push(evaluation);
     interviewHistory.push({ question: currentQuestion, answer });
 
@@ -519,10 +594,14 @@ practiceAgainBtn.addEventListener('click', () => {
   currentQuestionIndex = 0;
   answers = [];
   scores = [];
+  normalScores = [];
+  finalScores = [];
+  isFinalRound = false;
   feedbackList = [];
   dynamicQuestions = [];
   interviewHistory = [];
   isFeedbackShowing = false;
+  if(finalRoundLabel) finalRoundLabel.classList.add('hidden');
 
   resumeQuestions = [];
   usingResume = false;
@@ -537,3 +616,191 @@ practiceAgainBtn.addEventListener('click', () => {
   
   showScreen(screens.welcome);
 });
+
+// Navigation Back Buttons
+if (backToWelcomeBtn) {
+  backToWelcomeBtn.addEventListener('click', () => {
+    showScreen(screens.welcome);
+  });
+}
+
+if (backToRoleBtn) {
+  backToRoleBtn.addEventListener('click', () => {
+    showScreen(screens.role);
+  });
+}
+
+if (backToModeBtn) {
+  backToModeBtn.addEventListener('click', () => {
+    if (confirm("Are you sure you want to quit the interview? Progress will be lost.")) {
+      if (isRecording && recognition) {
+        recognition.stop();
+        isRecording = false;
+      }
+      currentQuestionIndex = 0;
+      answers = [];
+      scores = [];
+      normalScores = [];
+      finalScores = [];
+      feedbackList = [];
+      isFinalRound = false;
+      interviewHistory = [];
+      isFeedbackShowing = false;
+      if(finalRoundLabel) finalRoundLabel.classList.add('hidden');
+
+      showScreen(screens.mode);
+    }
+  });
+}
+
+// ==========================================
+// DASHBOARD LOGIC
+// ==========================================
+let scoreChartInstance = null;
+
+function loadDashboard() {
+  showScreen(screens.dashboard);
+  
+  const historyData = JSON.parse(localStorage.getItem('prepbot_history')) || [];
+  const dashboardContent = document.getElementById('dashboardContent');
+  const dashboardEmptyState = document.getElementById('dashboardEmptyState');
+  
+  if (historyData.length === 0) {
+    dashboardContent.classList.add('hidden');
+    dashboardEmptyState.classList.remove('hidden');
+    return;
+  }
+  
+  dashboardContent.classList.remove('hidden');
+  dashboardEmptyState.classList.add('hidden');
+  
+  // Metrics
+  document.getElementById('dashTotalInterviews').innerText = historyData.length;
+  
+  const totalScore = historyData.reduce((sum, item) => sum + item.score, 0);
+  const avgOverallScore = (totalScore / historyData.length).toFixed(1);
+  document.getElementById('dashAvgScore').innerText = avgOverallScore;
+  
+  const bestScore = Math.max(...historyData.map(item => item.score));
+  document.getElementById('dashBestScore').innerText = bestScore;
+  
+  // Strengths & Improvements Analysis
+  const strengthCounts = {};
+  const improvementCounts = {};
+  
+  historyData.forEach(item => {
+    (item.strengths || []).forEach(s => {
+      strengthCounts[s] = (strengthCounts[s] || 0) + 1;
+    });
+    (item.improvements || []).forEach(i => {
+      improvementCounts[i] = (improvementCounts[i] || 0) + 1;
+    });
+  });
+  
+  const topStrengths = Object.entries(strengthCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(entry => entry[0]);
+    
+  const topImprovements = Object.entries(improvementCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(entry => entry[0]);
+    
+  const dashTopStrengths = document.getElementById('dashTopStrengths');
+  dashTopStrengths.innerHTML = "";
+  if (topStrengths.length > 0) {
+    topStrengths.forEach(s => { dashTopStrengths.innerHTML += `<li>${s}</li>`; });
+  } else {
+    dashTopStrengths.innerHTML = "<li>No data</li>";
+  }
+  
+  const dashTopImprovements = document.getElementById('dashTopImprovements');
+  dashTopImprovements.innerHTML = "";
+  if (topImprovements.length > 0) {
+    topImprovements.forEach(i => { dashTopImprovements.innerHTML += `<li>${i}</li>`; });
+  } else {
+    dashTopImprovements.innerHTML = "<li>No data</li>";
+  }
+  
+  // History List
+  const dashHistoryList = document.getElementById('dashHistoryList');
+  dashHistoryList.innerHTML = "";
+  
+  // Reverse to show latest first
+  const reversedHistory = [...historyData].reverse();
+  reversedHistory.forEach(item => {
+    dashHistoryList.innerHTML += `
+      <li class="history-item">
+        <div>
+          <span class="history-item-role">${item.role}</span><br>
+          <span class="history-item-date">${item.date}</span>
+        </div>
+        <div class="history-item-score">
+          Score: ${item.score}
+        </div>
+      </li>
+    `;
+  });
+  
+  // Chart.js Graph
+  const ctx = document.getElementById('scoreChart').getContext('2d');
+  
+  if (scoreChartInstance) {
+    scoreChartInstance.destroy();
+  }
+  
+  const labels = historyData.map((_, index) => `Int ${index + 1}`);
+  const dataPoints = historyData.map(item => item.score);
+  
+  scoreChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Average Score',
+        data: dataPoints,
+        borderColor: '#2563EB',
+        backgroundColor: 'rgba(37, 99, 235, 0.2)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.3,
+        pointBackgroundColor: '#7C3AED',
+        pointRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+          ticks: { color: '#94A3B8' }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#94A3B8' }
+        }
+      }
+    }
+  });
+}
+
+// 7. Navigation Event Listeners
+if(viewDashboardBtnWelcome) {
+  viewDashboardBtnWelcome.addEventListener('click', loadDashboard);
+}
+
+if(viewDashboardBtnSummary) {
+  viewDashboardBtnSummary.addEventListener('click', loadDashboard);
+}
+
+if(backToHomeBtn) {
+  backToHomeBtn.addEventListener('click', () => {
+    showScreen(screens.welcome);
+  });
+}
