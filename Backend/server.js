@@ -15,7 +15,7 @@ app.use(express.json());
 app.use('/api/interview', interviewRoutes);
 
 // Serve frontend static files
-const frontendDir = path.join(__dirname, '..', 'Frontend');
+const frontendDir = path.join(__dirname, '..', 'frontend');
 app.use(express.static(frontendDir));
 
 // Health check endpoint
