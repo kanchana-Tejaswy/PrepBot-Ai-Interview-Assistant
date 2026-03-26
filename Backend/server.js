@@ -1,3 +1,5 @@
+/*
+#
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -39,5 +41,72 @@ if (process.env.VERCEL) {
     console.log(`Server is running on http://localhost:${PORT}`);
   });
 }
+
+module.exports = app;
+  */
+
+require("dotenv").config();
+
+const express = require("express");
+const cors = require("cors");
+
+const interviewRoutes = require("./routes/interview");
+
+const app = express();
+
+/* ===============================
+   MIDDLEWARE
+================================ */
+
+app.use(cors());
+app.use(express.json());
+
+/* ===============================
+   HEALTH CHECK ROUTES
+================================ */
+
+// Root route (helps Vercel health checks)
+app.get("/", (req, res) => {
+  res.send("✅ PrepBot AI Backend Running Successfully");
+});
+
+// API health check
+app.get("/api", (req, res) => {
+  res.json({
+    status: "PrepBot API is running strictly and professionally."
+  });
+});
+
+/* ===============================
+   API ROUTES
+================================ */
+
+app.use("/api/interview", interviewRoutes);
+
+/* ===============================
+   404 HANDLER FOR API
+================================ */
+
+app.use("/api/*", (req, res) => {
+  res.status(404).json({
+    error: "API route not found"
+  });
+});
+
+/* ===============================
+   LOCAL DEVELOPMENT SERVER
+================================ */
+
+const PORT = process.env.PORT || 5000;
+
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running locally at http://localhost:${PORT}`);
+  });
+}
+
+/* ===============================
+   EXPORT FOR VERCEL SERVERLESS
+================================ */
 
 module.exports = app;
