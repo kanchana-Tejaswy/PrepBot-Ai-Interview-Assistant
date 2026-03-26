@@ -31,7 +31,13 @@ app.use((req, res, next) => {
   res.sendFile(path.join(frontendDir, 'index.html'));
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+// For Vercel serverless, export app. For local run, listen normally.
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

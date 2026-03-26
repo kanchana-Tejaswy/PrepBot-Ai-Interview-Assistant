@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "nodemon backend/server.js",
+    "build": "echo \"No build step required. Static frontend is served from Frontend folder.\"",
+    "postinstall": "echo \"Ensure dependencies installed for backend and frontend.\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
