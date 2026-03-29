@@ -152,7 +152,10 @@ function generateFollowUp(answer) {
 // ==========================================
 // API BASE URL
 // ==========================================
-const API_BASE_URL = window.location.origin;
+// Always point frontend API calls to the backend server at localhost:5000.
+// This makes the app work even when the frontend is served from another local address
+// like http://127.0.0.1:5500 or when opened directly via file://.
+const API_BASE_URL = 'http://localhost:5000';
 
 // ==========================================
 // REALISTIC ANSWER EVALUATOR (API)
@@ -331,7 +334,7 @@ function showSummary() {
   summaryImprovements.innerHTML = "";
   allImprovements.forEach(i => { summaryImprovements.innerHTML += `<li>${i}</li>`; });
 
-  // SAVE TO LOCALSTORAGE
+  // SAVE TO BACKEND API (SUPABASE)
   const interviewData = {
     role: selectedRole,
     date: new Date().toLocaleDateString(),
@@ -340,9 +343,11 @@ function showSummary() {
     improvements: Array.from(allImprovements)
   };
   
-  let pastInterviews = JSON.parse(localStorage.getItem('prepbot_history')) || [];
-  pastInterviews.push(interviewData);
-  localStorage.setItem('prepbot_history', JSON.stringify(pastInterviews));
+  fetch(`${API_BASE_URL}/api/interview/history`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(interviewData)
+  }).catch(err => console.error('Failed to save interview history:', err));
 
   showScreen(screens.summary);
 }
@@ -658,10 +663,18 @@ if (backToModeBtn) {
 // ==========================================
 let scoreChartInstance = null;
 
-function loadDashboard() {
+async function loadDashboard() {
   showScreen(screens.dashboard);
   
-  const historyData = JSON.parse(localStorage.getItem('prepbot_history')) || [];
+  let historyData = [];
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/interview/history`);
+    if (res.ok) {
+      historyData = await res.json();
+    }
+  } catch (err) {
+    console.error('Failed to fetch dashboard history:', err);
+  }
   const dashboardContent = document.getElementById('dashboardContent');
   const dashboardEmptyState = document.getElementById('dashboardEmptyState');
   

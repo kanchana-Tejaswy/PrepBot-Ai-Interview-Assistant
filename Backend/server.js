@@ -1,112 +1,53 @@
-/*
-#
-require('dotenv').config();
+const dotenv = require('dotenv');
+const path = require('path');
+
+// Load environment variables from .env file
+dotenv.config();
+
+// Load environment variables via our custom config
+const config = require('./config/env.config');
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
-const interviewRoutes = require('./routes/interview');
 
+// Import routes
+const interviewRoutes = require('./routes/interview.routes');
+
+// Initialize express app
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Enable CORS
 app.use(cors());
+
+// Enable JSON middleware to parse incoming request bodies
 app.use(express.json());
 
-// API Routes
-app.use('/api/interview', interviewRoutes);
-
-// Serve frontend static files
-const frontendDir = path.join(__dirname, '..', 'frontend');
-app.use(express.static(frontendDir));
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Health check endpoint
-app.get('/api', (req, res) => {
-  res.json({ status: 'PrepBot API is running strictly and professionally.' });
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ status: "server running" });
 });
 
-// Fallback: SPA support; serve index.html for any non-API route
-app.use((req, res, next) => {
-  if (req.path.startsWith('/api')) {
-    return res.status(404).json({ error: 'API route not found.' });
-  }
-  res.sendFile(path.join(frontendDir, 'index.html'));
+// Configure base path for interview routes
+app.use('/api/interview', interviewRoutes);
+
+// Redirect any other request to the frontend index page
+app.use((req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// For Vercel serverless, export app. For local run, listen normally.
-if (process.env.VERCEL) {
-  module.exports = app;
-} else {
-  app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-  });
-}
-
-module.exports = app;
-  */
-
-require("dotenv").config();
-
-const express = require("express");
-const cors = require("cors");
-
-const interviewRoutes = require("./routes/interview");
-
-const app = express();
-
-/* ===============================
-   MIDDLEWARE
-================================ */
-
-app.use(cors());
-app.use(express.json());
-
-/* ===============================
-   HEALTH CHECK ROUTES
-================================ */
-
-// Root route (helps Vercel health checks)
-app.get("/", (req, res) => {
-  res.send("✅ PrepBot AI Backend Running Successfully");
+// Global Error Handler Middleware
+app.use((err, req, res, next) => {
+    console.error('[GlobalErrorHandler]', err.stack || err.message || err);
+    res.status(err.status || 500).json({
+        error: "Internal Server Error",
+        message: err.message || 'Something went wrong'
+    });
 });
 
-// API health check
-app.get("/api", (req, res) => {
-  res.json({
-    status: "PrepBot API is running strictly and professionally."
-  });
+// Start the server
+const PORT = config.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
-
-/* ===============================
-   API ROUTES
-================================ */
-
-app.use("/api/interview", interviewRoutes);
-
-/* ===============================
-   404 HANDLER FOR API
-================================ */
-
-app.use("/api/*", (req, res) => {
-  res.status(404).json({
-    error: "API route not found"
-  });
-});
-
-/* ===============================
-   LOCAL DEVELOPMENT SERVER
-================================ */
-
-const PORT = process.env.PORT || 5000;
-
-if (!process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running locally at http://localhost:${PORT}`);
-  });
-}
-
-/* ===============================
-   EXPORT FOR VERCEL SERVERLESS
-================================ */
-
-module.exports = app;
