@@ -46,8 +46,13 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Start the server
-const PORT = config.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// Start the server (Local development only)
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = config.PORT || 5000;
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
+
+// Export for Vercel
+module.exports = app;

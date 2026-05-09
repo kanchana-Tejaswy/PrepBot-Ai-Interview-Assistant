@@ -1,211 +1,245 @@
-<h1 align="center">🤖 PrepBot – AI Interview Assistant</h1>
+# 🤖 PrepBot – AI Interview Assistant
 
-<p align="center">
-🚀 AI-Powered Interview Simulation | Text & Voice | STAR Method Evaluation | Adaptive Questioning
-</p>
+🚀 **PrepBot** is a state-of-the-art, AI-driven platform designed to transform how candidates prepare for professional, academic, and technical interviews. By leveraging advanced Natural Language Processing (NLP) through Google Gemini and sophisticated voice analysis, PrepBot provides a realistic, adaptive, and highly personalized interview experience.
 
-<hr>
+---
 
-<h2>📌 Project Overview</h2>
-<p>
-<b>PrepBot</b> is an advanced AI-powered platform designed to simulate real-world interviews for students, professionals, and academic users. It provides an <b>interactive, adaptive, and personalized interview experience</b> by evaluating answers in text or voice, analyzing confidence, assessing structure using the STAR method, and generating role-specific questions based on resumes.
-</p>
+## 📑 Table of Contents
+1. [Project Vision & Overview](#-project-vision--overview)
+2. [Target Audience](#-target-audience)
+3. [Key Features](#-key-features)
+4. [Deep Dive: Technology Stack](#-deep-dive-technology-stack)
+5. [System Architecture](#-system-architecture)
+6. [Backend Infrastructure (Deep Dive)](#-backend-infrastructure-deep-dive)
+   - [Server Configuration](#server-configuration)
+   - [API Endpoints](#api-endpoints)
+   - [Database Schema & Supabase Integration](#database-schema--supabase-integration)
+   - [Gemini AI Integration Logic](#gemini-ai-integration-logic)
+7. [Frontend Architecture (Deep Dive)](#-frontend-architecture-deep-dive)
+   - [State Management](#state-management)
+   - [Voice Recognition & Analysis](#voice-recognition--analysis)
+   - [Resume Parsing Pipeline](#resume-parsing-pipeline)
+   - [Dynamic UI & Analytics](#dynamic-ui--analytics)
+8. [Installation & Setup Guide](#-installation--setup-guide)
+9. [Environment Variables](#-environment-variables)
+10. [Deployment (Vercel & Beyond)](#-deployment-vercel--beyond)
+11. [Future Roadmap](#-future-roadmap)
+12. [Author & Contributions](#-author--contributions)
 
-<p>
-PrepBot empowers users to improve their interview skills through actionable feedback, confidence tracking, and analytics, while serving as a learning companion for communication, logical structuring, and real-time practice.
-</p>
+---
 
-<hr>
+## 📌 Project Vision & Overview
+In today’s competitive job market, technical skills are only half the battle. The ability to articulate experiences, structure answers logically (using methods like STAR), and maintain confidence is what sets top candidates apart. 
 
-<h2>🎯 Target Audience</h2>
-<ul>
-  <li>🎓 <b>Students & Freshers:</b> Preparing for technical, analytical, or business interviews</li>
-  <li>💼 <b>Professionals:</b> Corporate interviews in marketing, product management, or sales</li>
-  <li>🏫 <b>Academic Roles:</b> Teachers, lecturers, or internal recruiters</li>
-  <li>🚀 <b>Program-Based Interviews:</b> UiPath, Google Student Ambassador, Microsoft Learn, Hackathons</li>
-</ul>
+**PrepBot** was born from the need for a "living" interview companion. Unlike static question banks, PrepBot listens, adapts, and evaluates. It simulates the pressure of a real interview while providing the safety of a learning environment.
 
-<hr>
+### Core Objectives:
+- **Simulate Realism:** Provide a flow that mimics actual HR and technical rounds.
+- **Adaptive Learning:** Ensure no two interviews are the same by using AI to generate follow-up questions based on candidate responses.
+- **Actionable Analytics:** Move beyond "pass/fail" to provide granular feedback on strengths, weaknesses, and speech patterns.
 
-<h2>⚠️ Problem Statement</h2>
-<p>
-Many candidates struggle with anxiety, structuring responses logically, and tracking improvement. Existing platforms often provide static questions and generic feedback. <b>PrepBot</b> solves this by combining AI evaluation, adaptive questioning, and voice analysis for a realistic, dynamic, and personalized interview simulation.
-</p>
+---
 
-<hr>
+## 🎯 Target Audience
+PrepBot is architected to serve a wide spectrum of users:
+- 🎓 **Students & Freshers:** Building foundational confidence for technical and behavioral rounds.
+- 💼 **Professionals:** Practicing for high-stakes leadership or specialized roles (Product Management, Marketing, etc.).
+- 🏫 **Academic Candidates:** Simulating interviews for teaching, research, and administrative positions.
+- 🚀 **Program Applicants:** Tailored practice for specific fellowships (Google DSC, Microsoft Learn, etc.).
 
-<h2>🔥 Key Features</h2>
+---
 
-<h3>Core Features (MVP)</h3>
-<ul>
-  <li>👋 Welcome Screen with motivational tagline</li>
-  <li>📝 Role Selection (Students, Professionals, Academic, Program-based)</li>
-  <li>💬 Interview Mode: Text chat or Voice</li>
-  <li>📊 Feedback Screen: AI evaluates strengths, weaknesses, and scores</li>
-  <li>📈 Session Summary: Track performance and view history</li>
-</ul>
+## 🔥 Key Features
 
-<h3>Research-Level Features</h3>
-<ul>
-  <li>🤖 AI Adaptive Questioning – Next question depends on prior answers</li>
-  <li>🎤 Voice Analysis – Measures hesitation, filler words, tone, speed, and confidence</li>
-  <li>📄 Resume-Based Personalized Questions – AI generates role-specific questions</li>
-  <li>⭐ STAR Method Evaluation – Checks Situation → Task → Action → Result alignment</li>
-  <li>📊 Analytics Dashboard – Tracks improvement over sessions</li>
-  <li>🧑‍💼 AI Interviewer Personalities – Friendly HR, strict technical, behavioral analyst, startup founder</li>
-  <li>⚡ Live Feedback – Real-time metrics during voice interviews</li>
-</ul>
+### 1. Intelligent Role-Based Simulation
+PrepBot understands the nuances of different roles. Whether you are a **Full Stack Developer** or a **Marketing Strategist**, the system generates specific question sets tailored to the industry standards.
 
-<hr>
+### 2. AI-Powered Resume Analysis
+Upload a PDF resume, and PrepBot's backend uses `pdf-parse` and Gemini AI to:
+- Extract technical skills.
+- Identify key projects.
+- Generate **5 personalized interview questions** that an actual recruiter would ask based on your background.
 
-<h2>🎨 UX & UI Design</h2>
-<h3>Color Psychology</h3>
-<table>
-  <tr><th>Component</th><th>Color Code</th><th>Psychological Purpose</th></tr>
-  <tr><td>Background</td><td>#0F172A</td><td>Calm focus, reduces eye strain</td></tr>
-  <tr><td>Primary Buttons</td><td>#2563EB</td><td>Trust, confidence, professionalism</td></tr>
-  <tr><td>Secondary Buttons</td><td>#7C3AED</td><td>Inspires intelligence and creativity</td></tr>
-  <tr><td>Accent Elements</td><td>#F59E0B</td><td>Highlights progress and motivates action</td></tr>
-  <tr><td>Card Background</td><td>#1E293B</td><td>Contrast, focus, readability</td></tr>
-  <tr><td>Text</td><td>#F8FAFC</td><td>Readable without eye strain</td></tr>
-</table>
+### 3. Adaptive Questioning (AI Follow-ups)
+The system doesn't just stick to a script. If your answer mentions a specific technology or a team conflict, the AI-driven **Smart Follow-up Generator** will inject a relevant "Tell me more about..." or "How did you handle the technical debt in that scenario?" question.
 
-<h3>Typography</h3>
-<ul>
-  <li>Headings: <b>Poppins</b> – Modern, clean, professional</li>
-  <li>Body Text: <b>Inter</b> – Easy-to-read for long text and code</li>
-</ul>
+### 4. Voice Analysis & Speech-to-Text
+Integrating the **Web Speech API**, PrepBot analyzes your verbal performance:
+- **Filler Word Detection:** Tracks "um", "uh", "basically", and "literally".
+- **Pacing Analysis:** Evaluates if you are speaking too fast or being too concise.
+- **Real-time Transcription:** Converts your voice into text for AI evaluation.
 
-<h3>Layout & UX</h3>
-<ul>
-  <li>Mobile-first, responsive design</li>
-  <li>Rounded cards for questions and feedback</li>
-  <li>Smooth transitions between screens</li>
-  <li>Step-by-step progress indicators</li>
-</ul>
+### 5. STAR Method Evaluation
+AI evaluates your answers based on the **Situation, Task, Action, and Result** framework, ensuring your responses are structured for maximum impact.
 
-<hr>
+### 6. Comprehensive Analytics Dashboard
+Using **Chart.js**, users can track their progress over multiple sessions. The dashboard displays:
+- Average scores over time.
+- Top recurring strengths and improvements.
+- Full session history.
 
-<h2>⚙️ System Architecture</h2>
-<p>PrepBot uses a modular, scalable design:</p>
-<pre>
-User Interface (HTML/CSS/JS)
-        ↓
-State Management (current question, role, score, answers)
-        ↓
-Backend (Node.js + Express)
-        ↓
-AI Evaluation Engine (OpenAI GPT / Google Gemini)
-        ↓
-Database (LocalStorage / Firebase / MongoDB)
-        ↓
-Feedback & Analytics Dashboard
-</pre>
+---
 
-<hr>
+## 🛠️ Deep Dive: Technology Stack
 
-<h2>🛠️ Tech Stack</h2>
-<table>
-<tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
-<tr><td>Frontend</td><td>HTML/CSS/JS</td><td>User interface, interactive experience</td></tr>
-<tr><td>Backend</td><td>Node.js + Express</td><td>API handling, session management</td></tr>
-<tr><td>Database</td><td>LocalStorage → Firebase / MongoDB</td><td>Profile & session storage</td></tr>
-<tr><td>AI Engine</td><td>OpenAI GPT / Google Gemini</td><td>Text evaluation & feedback generation</td></tr>
-<tr><td>Voice (Future)</td><td>OpenAI Whisper / ElevenLabs</td><td>Voice recognition & analysis</td></tr>
-</table>
+### Frontend
+- **HTML5 & CSS3:** Semantic structure with a premium, dark-mode "Glassmorphism" aesthetic.
+- **Vanilla JavaScript:** For robust, lightweight state management and DOM manipulation.
+- **Web Speech API:** Powering the voice-to-text and speech analysis.
+- **Chart.js:** Visualizing performance metrics and historical trends.
+- **PDF.js (via backend parsing):** For resume data extraction.
 
-<hr>
+### Backend
+- **Node.js & Express:** A scalable RESTful API architecture.
+- **Multer:** Handling multipart/form-data for resume uploads.
+- **PDF-Parse:** Extracting raw text from PDF files for AI processing.
+- **CORS:** Enabling secure cross-origin resource sharing.
 
-<h2>🤖 AI Integration</h2>
-<ul>
-  <li>Text Evaluation: AI scores relevance, structure, clarity</li>
-  <li>Voice Analysis: Detects hesitation, filler words, tone, confidence</li>
-  <li>Adaptive Questioning: Generates dynamic next questions</li>
-  <li>Resume Parsing: Generates role-specific questions</li>
-  <li>STAR Method Scoring: Evaluates S → T → A → R structure</li>
-</ul>
+### AI & Database
+- **Google Gemini AI (2.5-Flash):** The brain of the operation, handling question generation, answer evaluation, and resume analysis.
+- **Supabase (PostgreSQL):** For persistent storage of interview history and user metrics.
+- **Dotenv:** Secure environment variable management.
 
-<h3>Example Feedback</h3>
-<pre>
-Score: 8/10
-Strengths:
-- Clear explanation
-- Structured answer
-- Relevant examples
-Improvements:
-- Reduce filler words
-- Provide measurable outcomes
-</pre>
+---
 
-<hr>
+## ⚙️ System Architecture
 
-<h2>📁 Project Structure</h2>
-<pre>
-PrepBot/
-├── frontend/
-│   ├── index.html
-│   ├── style.css
-│   └── script.js
-├── backend/
-│   ├── server.js
-│   └── routes/
-├── utils/
-│   └── ai.js
-├── database/
-│   └── db.js
-└── package.json
-</pre>
+PrepBot follows a **Service-Oriented Architecture (SOA)** on the backend to maintain modularity:
 
-<hr>
+```mermaid
+graph TD
+    A[Client: HTML/CSS/JS] --> B[Express Server]
+    B --> C[Interview Routes]
+    C --> D[Interview Controller]
+    D --> E[Gemini Service]
+    D --> F[Database Config / Supabase]
+    E --> G[Google Gemini API]
+    F --> H[Supabase Cloud]
+    B --> I[Static File Server]
+```
 
-<h2>🚀 Implementation Plan</h2>
-<h3>Day 1</h3>
-<ul>
-  <li>Initialize folder structure & GitHub repository</li>
-  <li>Setup Node.js backend & API placeholders</li>
-  <li>Create basic frontend layout (welcome screen)</li>
-  <li>AI placeholder functions in utils/ai.js</li>
-  <li>Test frontend & backend connection</li>
-</ul>
+---
 
-<h3>Roadmap</h3>
-<table>
-<tr><th>Phase</th><th>Features</th><th>Timeline</th></tr>
-<tr><td>MVP</td><td>Chat interview, role selection, feedback, summary</td><td>7–10 days</td></tr>
-<tr><td>Intermediate</td><td>Adaptive questioning, STAR analysis, history tracking</td><td>2–3 weeks</td></tr>
-<tr><td>Advanced</td><td>Voice interview, confidence analysis, resume-based questions</td><td>3–5 weeks</td></tr>
-<tr><td>Research-Level</td><td>Analytics dashboard, AI personalities, live feedback</td><td>6–10 weeks</td></tr>
-</table>
+## 🚀 Backend Infrastructure (Deep Dive)
 
-<hr>
+### Server Configuration (`server.js`)
+The backend is the central hub. It serves the static frontend files and exposes a structured API under `/api/interview`. It includes a global error handler to ensure that AI timeouts or database disconnects don't crash the application.
 
-<h2>💡 Research-Level Potential</h2>
-<ul>
-  <li>Hackathon-winning project</li>
-  <li>Internship portfolio project</li>
-  <li>Research paper on AI, NLP & voice analysis</li>
-  <li>Startup prototype</li>
-</ul>
+### API Endpoints
 
-<p>
-PrepBot uniquely combines <b>adaptive AI questioning, voice evaluation, STAR scoring, and analytics</b> into one platform for measurable improvement.
-</p>
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `/api/health` | `GET` | Verifies server and API status. |
+| `/api/interview/start-interview` | `POST` | Generates the first question based on selected role. |
+| `/api/interview/evaluate` | `POST` | Sends question, answer, and history to AI for scoring. |
+| `/api/interview/upload` | `POST` | Accepts a PDF, extracts text, and returns resume-based questions. |
+| `/api/interview/history` | `POST` | Saves the final interview results to Supabase. |
+| `/api/interview/history` | `GET` | Retrieves all past interview sessions for the dashboard. |
 
-<hr>
+### Database Schema & Supabase Integration
+PrepBot uses a schema designed for analytical tracking. The `interviews` table stores:
+- `role`: The targeted job title.
+- `score`: The average score (0-10) of the session.
+- `strengths`: A JSON array of positive feedback.
+- `improvements`: A JSON array of areas for growth.
+- `created_at`: Automatic timestamping.
 
-<h2>👨‍💻 Author</h2>
-<p>
-<b>Tejaswy</b><br>
-🎓 CSE Student | 💻 Developer | 🚀 Building Real-World Projects
-</p>
+### Gemini AI Integration Logic (`gemini.service.js`)
+The service layer implements sophisticated prompting strategies:
+- **Role System Prompting:** Sets the "personality" of the AI as an expert HR interviewer.
+- **JSON Enforcement:** Forces Gemini to return structured data to ensure frontend stability.
+- **Context Injection:** Passes previous conversation history to ensure follow-up questions are logically connected.
 
-<hr>
+---
 
-<h2>⭐ Final Note</h2>
-<p>
-PrepBot is a hybrid, research-level application providing <b>realistic interview simulations</b>. From MVP to advanced voice-based AI analytics, it equips users with confidence, communication skills, and actionable insights for real-world interviews.
-</p>
+## 🎨 Frontend Architecture (Deep Dive)
 
-<p align="center">
-🔥 If you like this project, give it a star!
-</p>
+### State Management (`script.js`)
+The frontend maintains a complex state object that tracks:
+- `currentQuestionIndex`: Navigating the 15+ question flow.
+- `interviewHistory`: Accumulating the conversation for the "Final Round" evaluation.
+- `normalScores` vs `finalScores`: Separating standard questions from high-pressure behavioral rounds.
+
+### Voice Recognition & Analysis
+The voice module uses an interactive listener. When a user speaks, it:
+1.  **Transcribes** in real-time to the UI.
+2.  **Analyzes** the string for filler words using a regex-based pattern matcher.
+3.  **Appends** voice-specific feedback (e.g., "Good clarity" or "Too many pauses") to the final AI evaluation.
+
+### Resume Parsing Pipeline
+1.  User selects a PDF.
+2.  Frontend sends a `FormData` object to the backend.
+3.  Backend extracts text, sends it to Gemini for skill extraction.
+4.  Gemini returns a JSON object with personalized questions.
+5.  Frontend "injects" these questions into the primary interview loop.
+
+---
+
+## 🛠️ Installation & Setup Guide
+
+### Prerequisites
+- **Node.js** (v16 or higher)
+- **NPM** (v8 or higher)
+- **Google Gemini API Key**
+- **Supabase Project** (Optional for local testing)
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/yourusername/PrepBot.git
+cd PrepBot-Ai-Interview-Assistant
+```
+
+### 2. Install Dependencies
+```bash
+# Install backend and root dependencies
+npm install
+```
+
+### 3. Setup Environment Variables
+Create a `.env` file in the root directory:
+```env
+PORT=5000
+GEMINI_API_KEY=your_gemini_api_key_here
+SUPABASE_URL=your_supabase_url_here
+SUPABASE_KEY=your_supabase_anon_key_here
+```
+
+### 4. Run the Application
+```bash
+# Start the server (Backend and Frontend)
+npm start
+```
+The application will be available at `http://localhost:5000`.
+
+---
+
+## 🌐 Deployment (Vercel & Beyond)
+
+PrepBot is optimized for **Vercel** deployment.
+- The `vercel.json` configuration ensures that API routes and static files are handled correctly.
+- All frontend assets are served from the `/frontend` directory.
+- Ensure that `API_BASE_URL` in `script.js` is updated to your production URL if deploying separately.
+
+---
+
+## 📅 Future Roadmap
+- [ ] **Video Analysis:** Using Computer Vision to analyze eye contact and posture.
+- [ ] **Multi-Language Support:** Interviews in Hindi, Spanish, Mandarin, etc.
+- [ ] **Peer Comparison:** Benchmarking your score against other candidates for the same role.
+- [ ] **Direct Job Matching:** Connecting high-scoring candidates with real recruitment partners.
+
+---
+
+## 👨‍💻 Author
+**Tejaswy**
+🎓 CSE Student | 💻 Full-Stack Developer | 🚀 Passionate about AI & EdTech
+
+---
+
+## ⭐ Final Note
+PrepBot is more than just a project; it's a tool designed to empower. By bridging the gap between "knowing" and "showing," PrepBot helps you land your dream job.
+
+**If you find this project useful, please give it a star on GitHub!** 🌟
+
+---
+*Created with ❤️ by the PrepBot Team.*

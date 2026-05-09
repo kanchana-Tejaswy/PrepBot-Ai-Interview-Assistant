@@ -3,203 +3,453 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PrepBot - AI Interview Simulator</title>
+  <title>PrepBot - Master Your Next Interview with AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
-  <!-- 1. Welcome Screen -->
+  <!-- Visual Depth Elements -->
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+
+  <!-- Persistent Navbar -->
+  <nav class="navbar">
+    <div class="container nav-flex">
+      <a href="/" class="logo">Prep<span>Bot</span></a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#testimonials">Reviews</a>
+        <button id="themeToggle" title="Toggle Theme">
+          <i data-lucide="moon" id="themeIcon"></i>
+        </button>
+        <button onclick="document.getElementById('startPracticeBtn').click()" class="btn btn-nav">Get Started</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Welcome / Landing Screen -->
   <div id="welcomeScreen">
-    <h1>PrepBot</h1>
-    <p>Enhance your interview with AI</p>
-    <button id="startPracticeBtn">Start Practice</button>
-    <button id="viewDashboardBtnWelcome" class="secondary-btn">View Dashboard</button>
-  </div>
-
-  <!-- 2. Role Selection Screen -->
-  <div id="roleScreen" class="hidden">
-    <h2>Select Your Role</h2>
     
-    <label for="roleDropdown">Role:</label>
-    <select id="roleDropdown">
-      <option value="" disabled selected>Select a role...</option>
-      
-      <optgroup label="Technical">
-        <option value="software_engineer">Software Engineer</option>
-        <option value="frontend">Frontend</option>
-        <option value="backend">Backend</option>
-        <option value="full_stack">Full Stack</option>
-        <option value="data_analyst">Data Analyst</option>
-      </optgroup>
-      
-      <optgroup label="Business">
-        <option value="product_manager">Product Manager</option>
-        <option value="marketing">Marketing</option>
-        <option value="sales">Sales</option>
-      </optgroup>
-      
-      <optgroup label="Academic">
-        <option value="teacher">Teacher</option>
-        <option value="lecturer">Lecturer</option>
-        <option value="professor">Professor</option>
-        <option value="school_incharge">School Incharge</option>
-      </optgroup>
-      
-      <optgroup label="Programs">
-        <option value="google_ambassador">Google Student Ambassador</option>
-        <option value="uipath_developer">UiPath Student Developer</option>
-        <option value="microsoft_ambassador">Microsoft Student Ambassador</option>
-        <option value="hackathon">Hackathon</option>
-      </optgroup>
-      
-      <optgroup label="Custom">
-        <option value="custom">Custom role</option>
-      </optgroup>
-    </select>
-
-    <!-- Hidden by default -->
-    <input type="text" id="customRoleInput" class="hidden" placeholder="Enter your custom role">
-    
-    <!-- Error Message Placeholder -->
-    <p id="roleErrorMessage"></p>
-
-    <!-- Resume Feature -->
-    <hr style="margin: 20px 0; border: 1px solid rgba(255,255,255,0.1);">
-    <h3>OR: Upload Your Resume</h3>
-    <p style="font-size: 0.9em; margin-bottom: 10px;">We'll automatically extract your skills to generate personalized interview questions.</p>
-    <input type="file" id="resumeUploadInput" accept=".pdf">
-    <button id="uploadResumeBtn">Extract & Generate</button>
-    <p id="uploadStatusMessage"></p>
-    
-    <div id="resumeSkillsSection" class="hidden" style="margin-top: 15px; border: 1px solid rgba(255,255,255,0.2); padding: 10px; border-radius: 8px;">
-      <h4>Extracted Skills:</h4>
-      <ul id="resumeSkillsList" style="font-size: 0.9em; padding-left: 20px;"></ul>
-    </div>
-    <br>
-    
-    <button id="startInterviewBtn">Start Interview</button>
-    <button id="backToWelcomeBtn" class="secondary-btn" style="margin-top: 10px;">Back to Home</button>
-  </div>
-
-  <!-- 3. Interview Mode Selection Screen -->
-  <div id="modeScreen" class="hidden">
-    <h2>Select Interview Mode</h2>
-    <p>Role: <span id="modeSelectedRole"></span></p>
-    
-    <button id="chatModeBtn">Chat Mode</button>
-    <button id="voiceModeBtn">Voice Mode</button>
-    <button id="backToRoleBtn" class="secondary-btn" style="margin-top: 10px;">Back to Roles</button>
-  </div>
-
-  <!-- 4. Interview Screen -->
-  <div id="interviewScreen" class="hidden">
-    <h2>Interview in Progress</h2>
-    <h3 id="finalRoundLabel" class="hidden" style="color: var(--accent); margin-top: -10px; margin-bottom: 15px;">Final Mock Interview</h3>
-    
-    <p id="progressIndicator">Question 1 of 5</p>
-    <p id="questionText">Question text will appear here...</p>
-    
-    <!-- Text area for chat mode -->
-    <textarea id="answerTextarea" rows="5" placeholder="Type your answer here..."></textarea>
-    
-    <!-- Voice button for voice mode -->
-    <button id="voiceAnswerBtn" class="hidden">Start Voice Recording</button>
-    
-    <button id="nextQuestionBtn">Next Question</button>
-    
-    <!-- Feedback Section -->
-    <div id="feedbackSection">
-      <h3>Feedback</h3>
-      <p>Score: <span id="feedbackScore"></span></p>
-      
-      <h4>Strengths</h4>
-      <ul id="feedbackStrengths"></ul>
-      
-      <h4>Improvements</h4>
-      <ul id="feedbackImprovements"></ul>
-    </div>
-    
-    <button id="backToModeBtn" class="secondary-btn" style="margin-top: 20px;">Quit Interview</button>
-  </div>
-
-  <!-- 5. Session Summary Screen -->
-  <div id="summaryScreen" class="hidden">
-    <h2>Interview Completed</h2>
-    
-    <div style="display: flex; justify-content: space-around; margin: 20px 0; background: rgba(255,255,255,0.03); border-radius: 12px; padding: 15px;">
-      <div>
-        <p style="margin-bottom: 5px; font-size: 0.85em;">Phase 1</p>
-        <span id="summaryNormalScore" style="color: var(--success); font-size: 1.5rem; font-weight: bold;">0</span>
-      </div>
-      <div>
-        <p style="margin-bottom: 5px; font-size: 0.85em;">Final Round</p>
-        <span id="summaryFinalScore" style="color: var(--accent); font-size: 1.5rem; font-weight: bold;">0</span>
-      </div>
-      <div>
-        <p style="margin-bottom: 5px; font-size: 0.85em;">Combined Avg</p>
-        <span id="summaryAverageScore" style="color: var(--primary); font-size: 1.8rem; font-weight: bold;">0</span>
-      </div>
-    </div>
-    
-    <h3>Strengths</h3>
-    <ul id="summaryStrengths"></ul>
-    
-    <h3>Improvements</h3>
-    <ul id="summaryImprovements"></ul>
-    
-    <button id="practiceAgainBtn">Practice Again</button>
-    <button id="viewDashboardBtnSummary" class="secondary-btn">View Dashboard</button>
-  </div>
-
-  <!-- 6. Analytics Dashboard Screen -->
-  <div id="dashboardScreen" class="hidden dashboard-container">
-    <h2>Analytics Dashboard</h2>
-    
-    <div id="dashboardContent" class="hidden">
-      <div class="metrics-grid">
-        <div class="metric-card">
-          <h4>Total</h4>
-          <p id="dashTotalInterviews">0</p>
+    <!-- Hero Section -->
+    <header class="hero container">
+      <div class="hero-content reveal-left">
+        <h1>Master your next interview with <span class="text-primary">Confidence</span></h1>
+        <p>PrepBot is your personal AI interview companion. Practice with realistic scenarios, get instant feedback, and land your dream job.</p>
+        <div class="hero-actions">
+          <button id="startPracticeBtn" class="btn btn-cta">Start Practice Free <i data-lucide="arrow-right"></i></button>
+          <button id="viewDashboardBtnWelcome" class="btn btn-secondary">View Analytics</button>
         </div>
-        <div class="metric-card">
-          <h4>Avg Score</h4>
-          <p id="dashAvgScore">0</p>
+      </div>
+      <div class="hero-visual reveal-right">
+        <div class="hero-card">
+          <div class="chat-sim">
+            <div class="typing-indicator">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+            <div class="chat-bubble bubble-bot">
+              "Can you tell me about a time you handled a difficult technical challenge?"
+            </div>
+            <div class="chat-bubble bubble-user">
+              "In my last project, I encountered a critical memory leak in production..."
+            </div>
+          </div>
         </div>
-        <div class="metric-card">
-          <h4>Best Score</h4>
-          <p id="dashBestScore">0</p>
+      </div>
+    </header>
+
+    <!-- Social Proof Section -->
+    <section class="social-proof reveal-up">
+      <div class="container">
+        <p>Empowering candidates at top-tier companies</p>
+        <div class="logo-strip">
+          <div class="marquee-wrapper">
+            <div class="marquee-content">
+              <div class="mock-logo"><i data-lucide="triangle"></i> DELTA</div>
+              <div class="mock-logo"><i data-lucide="hexagon"></i> HEXA</div>
+              <div class="mock-logo"><i data-lucide="circle"></i> ORBIT</div>
+              <div class="mock-logo"><i data-lucide="octagon"></i> ZENITH</div>
+              <div class="mock-logo"><i data-lucide="box"></i> STACK</div>
+            </div>
+            <div class="marquee-content" aria-hidden="true">
+              <div class="mock-logo"><i data-lucide="triangle"></i> DELTA</div>
+              <div class="mock-logo"><i data-lucide="hexagon"></i> HEXA</div>
+              <div class="mock-logo"><i data-lucide="circle"></i> ORBIT</div>
+              <div class="mock-logo"><i data-lucide="octagon"></i> ZENITH</div>
+              <div class="mock-logo"><i data-lucide="box"></i> STACK</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features container">
+      <div class="section-title reveal-up">
+        <h2>Professional Features</h2>
+        <p>Advanced AI technology built to help you succeed.</p>
+      </div>
+
+      <div class="feature-item reveal-up">
+        <div class="feature-text">
+          <div class="step-num">01</div>
+          <h3>Adaptive AI Conversations</h3>
+          <p>Our AI doesn't follow a script. It listens to your unique answers and asks relevant follow-up questions, just like a real interviewer would in a high-stakes meeting.</p>
+        </div>
+        <div class="feature-visual">
+          <i data-lucide="brain-circuit"></i>
         </div>
       </div>
 
-      <div class="chart-container" style="position: relative; height:30vh; width:100%; margin-top: 20px;">
-        <canvas id="scoreChart"></canvas>
-      </div>
-
-      <div class="analysis-grid">
-        <div class="analysis-card">
-          <h4>Top Strengths</h4>
-          <ul id="dashTopStrengths"></ul>
+      <div class="feature-item reverse reveal-up">
+        <div class="feature-text">
+          <div class="step-num">02</div>
+          <h3>Personalized Resume Insights</h3>
+          <p>Upload your PDF resume and PrepBot will extract your specific skills and projects to generate custom questions tailored perfectly to your professional background.</p>
         </div>
-        <div class="analysis-card">
-          <h4>Top Improvements</h4>
-          <ul id="dashTopImprovements"></ul>
+        <div class="feature-visual">
+          <i data-lucide="file-text"></i>
         </div>
       </div>
 
-      <div class="history-section">
-        <h3>Interview History</h3>
-        <ul id="dashHistoryList" class="history-list"></ul>
+      <div class="feature-item reveal-up">
+        <div class="feature-text">
+          <div class="step-num">03</div>
+          <h3>Real-time Voice Analysis</h3>
+          <p>Practice your verbal communication with confidence. PrepBot analyzes your pacing, filler words, and clarity using state-of-the-art speech-to-text technology.</p>
+        </div>
+        <div class="feature-visual">
+          <i data-lucide="mic"></i>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <div id="dashboardEmptyState">
-      <p style="margin: 40px 0;">No interviews yet. Complete your first practice to see analytics!</p>
-    </div>
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+      <div class="container">
+        <div class="section-title reveal-up">
+          <h2>Your Journey to Success</h2>
+          <p>Three simple steps to transform your interview performance.</p>
+        </div>
+        <div class="steps-grid">
+          <div class="step reveal-up" style="transition-delay: 0.1s;">
+            <div class="step-num">1</div>
+            <h3>Pick Your Role</h3>
+            <p>Select from our industry-standard roles or upload your resume for a custom-fit session.</p>
+          </div>
+          <div class="step reveal-up" style="transition-delay: 0.2s;">
+            <div class="step-num">2</div>
+            <h3>Practice Mode</h3>
+            <p>Choose between focused Chat mode for concise writing or immersive Voice mode for verbal clarity.</p>
+          </div>
+          <div class="step reveal-up" style="transition-delay: 0.3s;">
+            <div class="step-num">3</div>
+            <h3>Deep Feedback</h3>
+            <p>Get instant performance scores and detailed, actionable tips to improve your answer structure.</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <button id="backToHomeBtn">Back to Home</button>
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials container">
+      <div class="section-title reveal-up">
+        <h2>What Our Users Say</h2>
+        <p>Join the thousands of candidates who have aced their interviews with PrepBot.</p>
+      </div>
+      <div class="testimonial-grid">
+        <div class="testimonial-card reveal-up" style="transition-delay: 0.1s;">
+          <p>"PrepBot helped me identify my filler word habit. I felt so much more articulate during my actual technical rounds at Meta!"</p>
+          <div class="user-info">
+            <div class="user-avatar">JS</div>
+            <div>
+              <h4>John Smith</h4>
+              <span>Software Engineer</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card reveal-up" style="transition-delay: 0.2s;">
+          <p>"The resume parsing feature is incredible. The questions were exactly what I was asked in my real Product Manager interview."</p>
+          <div class="user-info">
+            <div class="user-avatar">AD</div>
+            <div>
+              <h4>Alice Doe</h4>
+              <span>Product Manager</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card reveal-up" style="transition-delay: 0.3s;">
+          <p>"I was nervous about behavioral rounds, but the STAR method feedback changed how I structure my success stories entirely."</p>
+          <div class="user-info">
+            <div class="user-avatar">RK</div>
+            <div>
+              <h4>Robert King</h4>
+              <span>Marketing Lead</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section class="final-cta container">
+      <div class="cta-box reveal-up">
+        <h2>Ready to land your dream job?</h2>
+        <p>Start practicing today and join the ranks of high-performing candidates acing interviews worldwide.</p>
+        <button onclick="document.getElementById('startPracticeBtn').click()" class="btn btn-cta">Get Started Now — It's Free <i data-lucide="sparkles"></i></button>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-brand">
+            <a href="/" class="logo">Prep<span>Bot</span></a>
+            <p>Empowering the next generation of professionals with state-of-the-art AI interview preparation tools.</p>
+          </div>
+          <div class="footer-links">
+            <div class="link-group">
+              <h4>Product</h4>
+              <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How it works</a></li>
+                <li><a href="#testimonials">Reviews</a></li>
+              </ul>
+            </div>
+            <div class="link-group">
+              <h4>Resources</h4>
+              <ul>
+                <li><a href="https://github.com" target="_blank">GitHub</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2026 PrepBot AI Simulator. Created with ❤️ for career growth.</p>
+        </div>
+      </div>
+    </footer>
   </div>
 
+  <!-- App Wrapper: Selection & Interview Screens -->
+  <main class="app-wrapper container">
+    
+    <!-- 2. Role Selection -->
+    <div id="roleScreen" class="hidden app-card">
+      <h2>Select Your Role</h2>
+      <p class="subtitle">Personalize your interview session for maximum impact.</p>
+      
+      <div class="form-group">
+        <label for="roleDropdown">Target Role</label>
+        <select id="roleDropdown">
+          <option value="" disabled selected>Select a role...</option>
+          <optgroup label="Technical">
+            <option value="software_engineer">Software Engineer</option>
+            <option value="frontend">Frontend Developer</option>
+            <option value="backend">Backend Developer</option>
+            <option value="full_stack">Full Stack Developer</option>
+            <option value="data_analyst">Data Analyst</option>
+          </optgroup>
+          <optgroup label="Management">
+            <option value="product_manager">Product Manager</option>
+            <option value="marketing">Marketing Specialist</option>
+            <option value="sales">Sales Executive</option>
+          </optgroup>
+          <optgroup label="Education">
+            <option value="teacher">Teacher</option>
+            <option value="lecturer">Lecturer</option>
+            <option value="professor">Professor</option>
+          </optgroup>
+          <optgroup label="Custom">
+            <option value="custom">Custom role</option>
+          </optgroup>
+        </select>
+        <input type="text" id="customRoleInput" class="hidden" placeholder="Enter your custom role">
+        <p id="roleErrorMessage" class="error-msg"></p>
+      </div>
+
+      <div class="divider"><span>OR UPLOAD RESUME</span></div>
+
+      <div class="resume-upload">
+        <input type="file" id="resumeUploadInput" accept=".pdf" class="hidden">
+        <button onclick="document.getElementById('resumeUploadInput').click()" class="btn btn-secondary"><i data-lucide="upload"></i> Select PDF Resume</button>
+        <button id="uploadResumeBtn" class="btn btn-nav" style="margin-top: 1rem;">Analyze & Generate</button>
+        <p id="uploadStatusMessage" class="status-msg"></p>
+        
+        <div id="resumeSkillsSection" class="hidden skill-section">
+          <h4>Extracted Skills:</h4>
+          <ul id="resumeSkillsList" class="skill-list"></ul>
+        </div>
+      </div>
+      
+      <div class="app-actions">
+        <button id="startInterviewBtn" class="btn btn-cta">Start Interview</button>
+        <button id="backToWelcomeBtn" class="btn btn-text">Back to Home</button>
+      </div>
+    </div>
+
+    <!-- 3. Interview Mode Selection -->
+    <div id="modeScreen" class="hidden app-card">
+      <h2>Choose Mode</h2>
+      <p class="subtitle">Selected Role: <span id="modeSelectedRole" class="text-primary"></span></p>
+      
+      <div class="mode-grid">
+        <button id="chatModeBtn" class="btn-mode">
+          <i data-lucide="message-square"></i>
+          <span>Chat Mode</span>
+        </button>
+        <button id="voiceModeBtn" class="btn-mode">
+          <i data-lucide="mic"></i>
+          <span>Voice Mode</span>
+        </button>
+      </div>
+      <button id="backToRoleBtn" class="btn btn-text">Back to Roles</button>
+    </div>
+
+    <!-- 4. Interview Screen -->
+    <div id="interviewScreen" class="hidden app-card wide">
+      <div class="interview-nav">
+        <span id="progressIndicator">Question 1 of 5</span>
+        <h3 id="finalRoundLabel" class="hidden" style="background: var(--accent); color: white; padding: 0.3rem 1rem; border-radius: 99px; font-size: 0.8rem; text-transform: uppercase;">Final Round</h3>
+      </div>
+
+      <div class="question-container">
+        <p id="questionText">Awaiting question...</p>
+      </div>
+      
+      <textarea id="answerTextarea" placeholder="Type your comprehensive answer here..."></textarea>
+      
+      <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem;">
+        <button id="voiceAnswerBtn" class="hidden btn" style="background: var(--danger); color: white; padding: 0.8rem 1.5rem;">
+          <i data-lucide="mic"></i> <span>Start Recording</span>
+        </button>
+        <button id="nextQuestionBtn" class="btn btn-cta">Evaluate Answer</button>
+      </div>
+      
+      <div id="feedbackSection" class="hidden feedback-box">
+        <div class="feedback-header">
+          <h3>Instant Feedback</h3>
+          <span class="score-badge" style="background: var(--success); color: white; padding: 0.4rem 1.2rem; border-radius: 99px; font-weight: 800;">Score: <span id="feedbackScore"></span>/10</span>
+        </div>
+        <div class="feedback-content" style="text-align: left; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+          <div class="fb-col">
+            <h4 style="color: var(--text-main); font-size: 0.9rem; text-transform: uppercase; margin-bottom: 1rem;">Strengths</h4>
+            <ul id="feedbackStrengths" class="fb-list"></ul>
+          </div>
+          <div class="fb-col">
+            <h4 style="color: var(--text-main); font-size: 0.9rem; text-transform: uppercase; margin-bottom: 1rem;">Improvements</h4>
+            <ul id="feedbackImprovements" class="fb-list"></ul>
+          </div>
+        </div>
+      </div>
+      
+      <button id="backToModeBtn" class="btn btn-text">Quit Interview</button>
+    </div>
+
+    <!-- 5. Session Summary Screen -->
+    <div id="summaryScreen" class="hidden app-card">
+      <h2>Interview Summary</h2>
+      
+      <div class="score-summary" style="display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 1.5rem; margin: 3rem 0; align-items: center;">
+        <div class="score-item" style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 16px; border: 1px solid var(--border);">
+          <label style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-main);">Phase 1</label>
+          <span id="summaryNormalScore" style="display: block; font-size: 2rem; font-weight: 800; color: var(--primary);">0</span>
+        </div>
+        <div class="score-item main" style="background: var(--primary); padding: 2rem; border-radius: 20px; color: white; box-shadow: var(--shadow-lg);">
+          <label style="font-size: 0.9rem; text-transform: uppercase; opacity: 0.8;">Overall Score</label>
+          <span id="summaryAverageScore" style="display: block; font-size: 3.5rem; font-weight: 900;">0</span>
+        </div>
+        <div class="score-item" style="background: var(--bg-secondary); padding: 1.5rem; border-radius: 16px; border: 1px solid var(--border);">
+          <label style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-main);">Final Round</label>
+          <span id="summaryFinalScore" style="display: block; font-size: 2rem; font-weight: 800; color: var(--primary);">0</span>
+        </div>
+      </div>
+      
+      <div class="summary-details" style="text-align: left;">
+        <h4 style="margin-top: 2rem; color: var(--text-inverse); font-size: 1.25rem;">Key Performance Strengths</h4>
+        <ul id="summaryStrengths" style="margin: 1rem 0 2rem; color: var(--text-main); font-size: 1.1rem; line-height: 1.8;"></ul>
+        <h4 style="color: var(--text-inverse); font-size: 1.25rem;">Areas for Growth</h4>
+        <ul id="summaryImprovements" style="margin-top: 1rem; color: var(--text-main); font-size: 1.1rem; line-height: 1.8;"></ul>
+      </div>
+      
+      <div class="app-actions" style="margin-top: 4rem; display: flex; gap: 1.5rem; justify-content: center;">
+        <button id="practiceAgainBtn" class="btn btn-cta">New Session</button>
+        <button id="viewDashboardBtnSummary" class="btn btn-secondary">View Dashboard</button>
+      </div>
+    </div>
+
+    <!-- 6. Analytics Dashboard Screen -->
+    <div id="dashboardScreen" class="hidden app-card wide">
+      <div class="dash-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+        <h2 style="font-size: 2rem;">Analytics Dashboard</h2>
+        <button id="backToHomeBtn" class="btn btn-secondary" style="padding: 0.6rem 1.2rem;"><i data-lucide="home"></i></button>
+      </div>
+      
+      <div id="dashboardContent" class="hidden">
+        <div class="metrics-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-bottom: 4rem;">
+          <div class="metric" style="background: var(--bg-secondary); padding: 2.5rem; border-radius: 24px; border: 1px solid var(--border); box-shadow: var(--shadow-md);">
+            <label style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-main);">Total Sessions</label>
+            <p id="dashTotalInterviews" style="font-size: 3rem; font-weight: 900; color: var(--primary);">0</p>
+          </div>
+          <div class="metric" style="background: var(--bg-secondary); padding: 2.5rem; border-radius: 24px; border: 1px solid var(--border); box-shadow: var(--shadow-md);">
+            <label style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-main);">Avg Performance</label>
+            <p id="dashAvgScore" style="font-size: 3rem; font-weight: 900; color: var(--primary);">0</p>
+          </div>
+          <div class="metric" style="background: var(--bg-secondary); padding: 2.5rem; border-radius: 24px; border: 1px solid var(--border); box-shadow: var(--shadow-md);">
+            <label style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-main);">Personal Best</label>
+            <p id="dashBestScore" style="font-size: 3rem; font-weight: 900; color: var(--primary);">0</p>
+          </div>
+        </div>
+
+        <div class="chart-container" style="background: var(--bg-secondary); padding: 3rem; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 4rem; height: 400px;">
+          <canvas id="scoreChart"></canvas>
+        </div>
+
+        <div class="analysis-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; text-align: left;">
+          <div class="analysis-box" style="background: var(--bg-secondary); padding: 2.5rem; border-radius: 24px; border: 1px solid var(--border);">
+            <h4 style="font-size: 1.1rem; color: var(--text-inverse); margin-bottom: 1.5rem;">Recurring Strengths</h4>
+            <ul id="dashTopStrengths" style="line-height: 1.8;"></ul>
+          </div>
+          <div class="analysis-box" style="background: var(--bg-secondary); padding: 2.5rem; border-radius: 24px; border: 1px solid var(--border);">
+            <h4 style="font-size: 1.1rem; color: var(--text-inverse); margin-bottom: 1.5rem;">Frequent Improvements</h4>
+            <ul id="dashTopImprovements" style="line-height: 1.8;"></ul>
+          </div>
+        </div>
+
+        <div class="history-section" style="margin-top: 5rem; text-align: left;">
+          <h3 style="font-size: 1.5rem; margin-bottom: 2rem;">Recent Session History</h3>
+          <ul id="dashHistoryList" class="history-list"></ul>
+        </div>
+      </div>
+
+      <div id="dashboardEmptyState" class="empty-state" style="padding: 6rem 0; opacity: 0.7;">
+        <i data-lucide="bar-chart-3" style="width: 80px; height: 80px; color: var(--text-main); margin-bottom: 2rem;"></i>
+        <p style="font-size: 1.25rem;">Complete your first session to see your progress analytics here.</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Lucide Icon Initializer with Mutation Observer for dynamic elements
+    function initIcons() {
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    }
+    window.addEventListener('load', initIcons);
+    const observer = new MutationObserver(() => initIcons());
+    observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style'] });
+  </script>
   <script src="script.js"></script>
 </body>
 </html>

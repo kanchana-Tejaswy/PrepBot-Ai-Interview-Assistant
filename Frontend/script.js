@@ -1,4 +1,79 @@
 // ==========================================
+// THEME MANAGEMENT
+// ==========================================
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const htmlElement = document.documentElement;
+
+// Function to set theme
+function setTheme(theme) {
+  htmlElement.setAttribute('data-theme', theme);
+  localStorage.setItem('prepbot-theme', theme);
+  
+  // Update icon
+  if (theme === 'light') {
+    themeIcon.setAttribute('data-lucide', 'sun');
+  } else {
+    themeIcon.setAttribute('data-lucide', 'moon');
+  }
+  
+  // Re-initialize Lucide icons
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+}
+
+// Initial theme load
+const savedTheme = localStorage.getItem('prepbot-theme') || 'dark';
+setTheme(savedTheme);
+
+// Toggle theme event listener
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    const currentTheme = htmlElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+  });
+}
+
+// ==========================================
+// SCROLL REVEAL ANIMATIONS
+// ==========================================
+function initScrollReveal() {
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: "0px 0px -50px 0px"
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('active');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
+  const revealElements = document.querySelectorAll('.reveal-up, .reveal-left, .reveal-right');
+  
+  // Apply a small timeout to ensure DOM is fully ready and painted
+  setTimeout(() => {
+    revealElements.forEach(el => {
+      // Check if element is already in view on load
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight) {
+        el.classList.add('active');
+      } else {
+        observer.observe(el);
+      }
+    });
+  }, 100);
+}
+
+// Initialize on load
+window.addEventListener('DOMContentLoaded', initScrollReveal);
+
+// ==========================================
 // STATE MANAGEMENT & VARIABLES
 // ==========================================
 let selectedRole = "";
@@ -152,10 +227,10 @@ function generateFollowUp(answer) {
 // ==========================================
 // API BASE URL
 // ==========================================
-// Always point frontend API calls to the backend server at localhost:5000.
-// This makes the app work even when the frontend is served from another local address
-// like http://127.0.0.1:5500 or when opened directly via file://.
-const API_BASE_URL = 'http://localhost:5000';
+// Automatically switches between localhost for development and relative paths for Vercel production.
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:5000' 
+  : ''; 
 
 // ==========================================
 // REALISTIC ANSWER EVALUATOR (API)
@@ -250,13 +325,12 @@ function loadQuestion() {
   
   answerTextarea.value = "";
   answerTextarea.placeholder = "Type your comprehensive answer here...";
-  answerTextarea.style.border = "1px solid rgba(255, 255, 255, 0.1)";
   
   if (interviewMode === "chat") {
     answerTextarea.classList.remove('hidden');
     voiceAnswerBtn.classList.add('hidden');
   } else {
-    answerTextarea.classList.remove('hidden'); // Show textarea to display transcribed text
+    answerTextarea.classList.remove('hidden');
     voiceAnswerBtn.classList.remove('hidden');
     voiceAnswerBtn.innerText = "Start Recording";
     if (isRecording && recognition) {
@@ -357,270 +431,282 @@ function showSummary() {
 // ==========================================
 
 // 1. Welcome -> Role Selection
-startPracticeBtn.addEventListener('click', () => {
-  showScreen(screens.role);
-});
+if (startPracticeBtn) {
+  startPracticeBtn.addEventListener('click', () => {
+    showScreen(screens.role);
+  });
+}
 
 // 2. Custom Role Field Logic
-roleDropdown.addEventListener('change', () => {
-  if (roleDropdown.value === "custom") {
-    customRoleInput.classList.remove('hidden');
-  } else {
-    customRoleInput.classList.add('hidden');
-  }
-  roleErrorMessage.innerText = ""; 
-});
+if (roleDropdown) {
+  roleDropdown.addEventListener('change', () => {
+    if (roleDropdown.value === "custom") {
+      customRoleInput.classList.remove('hidden');
+    } else {
+      customRoleInput.classList.add('hidden');
+    }
+    roleErrorMessage.innerText = ""; 
+  });
+}
 
 // ==========================================
 // RESUME UPLOAD LOGIC
 // ==========================================
-uploadResumeBtn.addEventListener('click', async () => {
-  const file = resumeUploadInput.files[0];
-  if (!file) {
-    uploadStatusMessage.innerText = "❌ Please select a PDF file first.";
-    uploadStatusMessage.style.color = "red";
-    return;
-  }
-
-  if (file.type !== "application/pdf") {
-    uploadStatusMessage.innerText = "❌ Only PDF files are supported.";
-    uploadStatusMessage.style.color = "red";
-    return;
-  }
-
-  uploadStatusMessage.innerText = "⏳ Uploading and analyzing resume...";
-  uploadStatusMessage.style.color = "blue";
-  uploadResumeBtn.disabled = true;
-
-  const formData = new FormData();
-  formData.append("resume", file);
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/interview/upload`, {
-      method: 'POST',
-      body: formData
-    });
-
-    if (!response.ok) throw new Error("Upload failed.");
-
-    const data = await response.json();
-    
-    // Success
-    resumeQuestions = data.questions || [];
-    usingResume = true;
-    selectedRole = "Resume-Based Candidate";
-    
-    uploadStatusMessage.innerText = "✅ Resume analyzed successfully! (" + file.name + ")";
-    uploadStatusMessage.style.color = "lime";
-    
-    // Display Skills
-    resumeSkillsList.innerHTML = "";
-    (data.skills || []).forEach(skill => {
-      resumeSkillsList.innerHTML += `<li>${skill}</li>`;
-    });
-    resumeSkillsSection.classList.remove('hidden');
-
-  } catch (error) {
-    console.error(error);
-    uploadStatusMessage.innerText = "❌ Failed to parse resume. Using default questions.";
-    uploadStatusMessage.style.color = "red";
-    usingResume = false;
-  } finally {
-    uploadResumeBtn.disabled = false;
-  }
-});
-
-// 3. Role Selection -> Mode Selection
-startInterviewBtn.addEventListener('click', () => {
-  if (usingResume) {
-    modeSelectedRole.innerText = selectedRole;
-    showScreen(screens.mode);
-    return;
-  }
-
-  const roleValue = roleDropdown.value;
-  
-  if (!roleValue) {
-    roleErrorMessage.innerText = "Please select a role to continue.";
-    return;
-  }
-
-  if (roleValue === "custom") {
-    const customValue = customRoleInput.value.trim();
-    if (!customValue) {
-      roleErrorMessage.innerText = "Please enter your custom role.";
+if (uploadResumeBtn) {
+  uploadResumeBtn.addEventListener('click', async () => {
+    const file = resumeUploadInput.files[0];
+    if (!file) {
+      uploadStatusMessage.innerText = "❌ Please select a PDF file first.";
       return;
     }
-    selectedRole = customValue;
-  } else {
-    selectedRole = roleDropdown.options[roleDropdown.selectedIndex].text;
-  }
 
-  modeSelectedRole.innerText = selectedRole;
-  showScreen(screens.mode);
-});
+    if (file.type !== "application/pdf") {
+      uploadStatusMessage.innerText = "❌ Only PDF files are supported.";
+      return;
+    }
+
+    uploadStatusMessage.innerText = "⏳ Uploading and analyzing resume...";
+    uploadResumeBtn.disabled = true;
+
+    const formData = new FormData();
+    formData.append("resume", file);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/interview/upload`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) throw new Error("Upload failed.");
+
+      const data = await response.json();
+      
+      // Success
+      resumeQuestions = data.questions || [];
+      usingResume = true;
+      selectedRole = "Resume-Based Candidate";
+      
+      uploadStatusMessage.innerText = "✅ Resume analyzed successfully! (" + file.name + ")";
+      
+      // Display Skills
+      resumeSkillsList.innerHTML = "";
+      (data.skills || []).forEach(skill => {
+        resumeSkillsList.innerHTML += `<li>${skill}</li>`;
+      });
+      resumeSkillsSection.classList.remove('hidden');
+
+    } catch (error) {
+      console.error(error);
+      uploadStatusMessage.innerText = "❌ Failed to parse resume. Using default questions.";
+      usingResume = false;
+    } finally {
+      uploadResumeBtn.disabled = false;
+    }
+  });
+}
+
+// 3. Role Selection -> Mode Selection
+if (startInterviewBtn) {
+  startInterviewBtn.addEventListener('click', () => {
+    if (usingResume) {
+      modeSelectedRole.innerText = selectedRole;
+      showScreen(screens.mode);
+      return;
+    }
+
+    const roleValue = roleDropdown.value;
+    
+    if (!roleValue) {
+      roleErrorMessage.innerText = "Please select a role to continue.";
+      return;
+    }
+
+    if (roleValue === "custom") {
+      const customValue = customRoleInput.value.trim();
+      if (!customValue) {
+        roleErrorMessage.innerText = "Please enter your custom role.";
+        return;
+      }
+      selectedRole = customValue;
+    } else {
+      selectedRole = roleDropdown.options[roleDropdown.selectedIndex].text;
+    }
+
+    modeSelectedRole.innerText = selectedRole;
+    showScreen(screens.mode);
+  });
+}
 
 // 4. Mode Selection -> Interview Generation
-chatModeBtn.addEventListener('click', () => {
-  interviewMode = "chat";
-  if (usingResume && resumeQuestions.length > 0) {
-    dynamicQuestions = [...resumeQuestions];
-  } else {
-    dynamicQuestions = generateQuestionsByRole(selectedRole);
-  }
-  showScreen(screens.interview);
-  loadQuestion();
-});
+if (chatModeBtn) {
+  chatModeBtn.addEventListener('click', () => {
+    interviewMode = "chat";
+    if (usingResume && resumeQuestions.length > 0) {
+      dynamicQuestions = [...resumeQuestions];
+    } else {
+      dynamicQuestions = generateQuestionsByRole(selectedRole);
+    }
+    showScreen(screens.interview);
+    loadQuestion();
+  });
+}
 
-voiceModeBtn.addEventListener('click', () => {
-  interviewMode = "voice";
-  if (usingResume && resumeQuestions.length > 0) {
-    dynamicQuestions = [...resumeQuestions];
-  } else {
-    dynamicQuestions = generateQuestionsByRole(selectedRole);
-  }
-  showScreen(screens.interview);
-  loadQuestion();
-});
+if (voiceModeBtn) {
+  voiceModeBtn.addEventListener('click', () => {
+    interviewMode = "voice";
+    if (usingResume && resumeQuestions.length > 0) {
+      dynamicQuestions = [...resumeQuestions];
+    } else {
+      dynamicQuestions = generateQuestionsByRole(selectedRole);
+    }
+    showScreen(screens.interview);
+    loadQuestion();
+  });
+}
 
 // ==========================================
 // VOICE BUTTON LOGIC
 // ==========================================
-voiceAnswerBtn.addEventListener('click', () => {
-  if (!SpeechRecognition) {
-    alert("Voice not supported");
-    return;
-  }
+if (voiceAnswerBtn) {
+  voiceAnswerBtn.addEventListener('click', () => {
+    if (!SpeechRecognition) {
+      alert("Voice not supported");
+      return;
+    }
 
-  if (isRecording) {
-    recognition.stop();
-    isRecording = false;
-    voiceAnswerBtn.innerText = "Start Recording";
-  } else {
-    answerTextarea.value = ""; // Clear for new recording
-    recognition.start();
-    isRecording = true;
-    voiceAnswerBtn.innerText = "Stop Recording (Listening...)";
-    answerTextarea.placeholder = "Listening to your answer...";
-  }
-});
-
-// 5. Submit / Validate / Evaluate / Follow-up Flow
-nextQuestionBtn.addEventListener('click', async () => {
-  
-  if (!isFeedbackShowing) {
-    // If recording is still active when submitting, stop it
-    if (isRecording && recognition) {
+    if (isRecording) {
       recognition.stop();
       isRecording = false;
       voiceAnswerBtn.innerText = "Start Recording";
-    }
-
-    // Evaluation Stage
-    const answer = answerTextarea.value.trim();
-    
-    if (!answer) {
-      answerTextarea.placeholder = "❌ Please provide an answer before we proceed...";
-      answerTextarea.style.border = "1px solid #ef4444";
-      return;
-    }
-
-    // Show Loading State
-    const originalBtnText = nextQuestionBtn.innerText;
-    nextQuestionBtn.innerText = "Analyzing answer...";
-    nextQuestionBtn.disabled = true;
-
-    // Call Backend API
-    const currentQuestion = dynamicQuestions[currentQuestionIndex];
-    const evaluation = await evaluateAnswerAPI(currentQuestion, answer, selectedRole, interviewHistory);
-
-    if (evaluation.error) {
-      alert("AI evaluation failed. Try again.");
-      nextQuestionBtn.innerText = originalBtnText;
-      nextQuestionBtn.disabled = false;
-      return;
-    }
-
-    // Analyze voice and append feedback if voice mode
-    if (interviewMode === "voice") {
-      const voiceFeedback = analyzeVoice(answer);
-      evaluation.strengths = (evaluation.strengths || []).concat(voiceFeedback.strengths);
-      evaluation.improvements = (evaluation.improvements || []).concat(voiceFeedback.improvements);
-    }
-
-    // Save history
-    answers.push(answer);
-    scores.push(evaluation.score);
-    if (isFinalRound) {
-      finalScores.push(evaluation.score);
     } else {
-      normalScores.push(evaluation.score);
+      answerTextarea.value = ""; // Clear for new recording
+      recognition.start();
+      isRecording = true;
+      voiceAnswerBtn.innerText = "Stop Recording (Listening...)";
+      answerTextarea.placeholder = "Listening to your answer...";
     }
-    feedbackList.push(evaluation);
-    interviewHistory.push({ question: currentQuestion, answer });
+  });
+}
 
-    // Apply exact feedback to the UI
-    feedbackScore.innerText = evaluation.score;
+// 5. Submit / Validate / Evaluate / Follow-up Flow
+if (nextQuestionBtn) {
+  nextQuestionBtn.addEventListener('click', async () => {
     
-    feedbackStrengths.innerHTML = "";
-    (evaluation.strengths || []).forEach(s => { feedbackStrengths.innerHTML += `<li>${s}</li>`; });
+    if (!isFeedbackShowing) {
+      // If recording is still active when submitting, stop it
+      if (isRecording && recognition) {
+        recognition.stop();
+        isRecording = false;
+        voiceAnswerBtn.innerText = "Start Recording";
+      }
 
-    feedbackImprovements.innerHTML = "";
-    (evaluation.improvements || []).forEach(i => { feedbackImprovements.innerHTML += `<li>${i}</li>`; });
+      // Evaluation Stage
+      const answer = answerTextarea.value.trim();
+      
+      if (!answer) {
+        answerTextarea.placeholder = "❌ Please provide an answer before we proceed...";
+        return;
+      }
 
-    feedbackSection.classList.remove('hidden');
+      // Show Loading State
+      const originalBtnText = nextQuestionBtn.innerText;
+      nextQuestionBtn.innerText = "Analyzing answer...";
+      nextQuestionBtn.disabled = true;
 
-    // Intelligent Follow-up Check
-    const followUp = generateFollowUp(answer);
-    const isCurrentQuestionAFollowUp = currentQuestion.startsWith("[Follow-up]");
-    
-    // Insert rule-based follow up OR AI-generated adaptive nextQuestion
-    if (followUp && !isCurrentQuestionAFollowUp) {
-      dynamicQuestions.splice(currentQuestionIndex + 1, 0, "[Follow-up] " + followUp);
-    } else if (evaluation.nextQuestion) {
-      // Append Adaptive AI Question
-      dynamicQuestions.splice(currentQuestionIndex + 1, 0, evaluation.nextQuestion);
+      // Call Backend API
+      const currentQuestion = dynamicQuestions[currentQuestionIndex];
+      const evaluation = await evaluateAnswerAPI(currentQuestion, answer, selectedRole, interviewHistory);
+
+      if (evaluation.error) {
+        alert("AI evaluation failed. Try again.");
+        nextQuestionBtn.innerText = originalBtnText;
+        nextQuestionBtn.disabled = false;
+        return;
+      }
+
+      // Analyze voice and append feedback if voice mode
+      if (interviewMode === "voice") {
+        const voiceFeedback = analyzeVoice(answer);
+        evaluation.strengths = (evaluation.strengths || []).concat(voiceFeedback.strengths);
+        evaluation.improvements = (evaluation.improvements || []).concat(voiceFeedback.improvements);
+      }
+
+      // Save history
+      answers.push(answer);
+      scores.push(evaluation.score);
+      if (isFinalRound) {
+        finalScores.push(evaluation.score);
+      } else {
+        normalScores.push(evaluation.score);
+      }
+      feedbackList.push(evaluation);
+      interviewHistory.push({ question: currentQuestion, answer });
+
+      // Apply exact feedback to the UI
+      feedbackScore.innerText = evaluation.score;
+      
+      feedbackStrengths.innerHTML = "";
+      (evaluation.strengths || []).forEach(s => { feedbackStrengths.innerHTML += `<li>${s}</li>`; });
+
+      feedbackImprovements.innerHTML = "";
+      (evaluation.improvements || []).forEach(i => { feedbackImprovements.innerHTML += `<li>${i}</li>`; });
+
+      feedbackSection.classList.remove('hidden');
+
+      // Intelligent Follow-up Check
+      const followUp = generateFollowUp(answer);
+      const isCurrentQuestionAFollowUp = currentQuestion.startsWith("[Follow-up]");
+      
+      // Insert rule-based follow up OR AI-generated adaptive nextQuestion
+      if (followUp && !isCurrentQuestionAFollowUp) {
+        dynamicQuestions.splice(currentQuestionIndex + 1, 0, "[Follow-up] " + followUp);
+      } else if (evaluation.nextQuestion) {
+        // Append Adaptive AI Question
+        dynamicQuestions.splice(currentQuestionIndex + 1, 0, evaluation.nextQuestion);
+      }
+
+      isFeedbackShowing = true;
+      nextQuestionBtn.innerText = "Proceed to Next Question";
+      nextQuestionBtn.disabled = false;
+
+    } else {
+      // Proceed Stage
+      getNextQuestion();
     }
-
-    isFeedbackShowing = true;
-    nextQuestionBtn.innerText = "Proceed to Next Question";
-    nextQuestionBtn.disabled = false;
-
-  } else {
-    // Proceed Stage
-    getNextQuestion();
-  }
-});
+  });
+}
 
 // 6. Practice Again Reset Flow
-practiceAgainBtn.addEventListener('click', () => {
-  selectedRole = "";
-  interviewMode = "";
-  currentQuestionIndex = 0;
-  answers = [];
-  scores = [];
-  normalScores = [];
-  finalScores = [];
-  isFinalRound = false;
-  feedbackList = [];
-  dynamicQuestions = [];
-  interviewHistory = [];
-  isFeedbackShowing = false;
-  if(finalRoundLabel) finalRoundLabel.classList.add('hidden');
+if (practiceAgainBtn) {
+  practiceAgainBtn.addEventListener('click', () => {
+    selectedRole = "";
+    interviewMode = "";
+    currentQuestionIndex = 0;
+    answers = [];
+    scores = [];
+    normalScores = [];
+    finalScores = [];
+    isFinalRound = false;
+    feedbackList = [];
+    dynamicQuestions = [];
+    interviewHistory = [];
+    isFeedbackShowing = false;
+    if(finalRoundLabel) finalRoundLabel.classList.add('hidden');
 
-  resumeQuestions = [];
-  usingResume = false;
-  resumeUploadInput.value = "";
-  uploadStatusMessage.innerText = "";
-  resumeSkillsSection.classList.add('hidden');
+    resumeQuestions = [];
+    usingResume = false;
+    resumeUploadInput.value = "";
+    uploadStatusMessage.innerText = "";
+    resumeSkillsSection.classList.add('hidden');
 
-  roleDropdown.selectedIndex = 0;
-  customRoleInput.value = "";
-  customRoleInput.classList.add('hidden');
-  roleErrorMessage.innerText = "";
-  
-  showScreen(screens.welcome);
-});
+    roleDropdown.selectedIndex = 0;
+    customRoleInput.value = "";
+    customRoleInput.classList.add('hidden');
+    roleErrorMessage.innerText = "";
+    
+    showScreen(screens.welcome);
+  });
+}
 
 // Navigation Back Buttons
 if (backToWelcomeBtn) {
@@ -740,17 +826,16 @@ async function loadDashboard() {
   const dashHistoryList = document.getElementById('dashHistoryList');
   dashHistoryList.innerHTML = "";
   
-  // Reverse to show latest first
   const reversedHistory = [...historyData].reverse();
   reversedHistory.forEach(item => {
     dashHistoryList.innerHTML += `
       <li class="history-item">
         <div>
-          <span class="history-item-role">${item.role}</span><br>
-          <span class="history-item-date">${item.date}</span>
+          <span class="history-item-role" style="font-weight: 700; color: var(--text-inverse);">${item.role}</span><br>
+          <span class="history-item-date" style="font-size: 0.85rem; color: var(--text-muted);">${item.date}</span>
         </div>
-        <div class="history-item-score">
-          Score: ${item.score}
+        <div class="history-item-score" style="font-weight: 800; color: var(--primary); font-size: 1.2rem;">
+          ${item.score}
         </div>
       </li>
     `;
@@ -766,6 +851,9 @@ async function loadDashboard() {
   const labels = historyData.map((_, index) => `Int ${index + 1}`);
   const dataPoints = historyData.map(item => item.score);
   
+  // Get CSS variable color for the chart
+  const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+  
   scoreChartInstance = new Chart(ctx, {
     type: 'line',
     data: {
@@ -773,13 +861,14 @@ async function loadDashboard() {
       datasets: [{
         label: 'Average Score',
         data: dataPoints,
-        borderColor: '#2563EB',
-        backgroundColor: 'rgba(37, 99, 235, 0.2)',
-        borderWidth: 2,
+        borderColor: primaryColor,
+        backgroundColor: `${primaryColor}33`, // Add transparency
+        borderWidth: 3,
         fill: true,
-        tension: 0.3,
-        pointBackgroundColor: '#7C3AED',
-        pointRadius: 4
+        tension: 0.4,
+        pointBackgroundColor: primaryColor,
+        pointRadius: 5,
+        pointHoverRadius: 8
       }]
     },
     options: {
@@ -791,7 +880,8 @@ async function loadDashboard() {
       scales: {
         y: {
           beginAtZero: true,
-          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+          max: 10,
+          grid: { color: 'rgba(255, 255, 255, 0.05)' },
           ticks: { color: '#94A3B8' }
         },
         x: {
