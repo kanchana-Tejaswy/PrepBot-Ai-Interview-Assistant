@@ -1,8 +1,16 @@
 # 🤖 PrepBot – AI Interview Assistant
 
+<<<<<<< HEAD
 🚀 **PrepBot** is a state-of-the-art, AI-driven platform designed to transform how candidates prepare for professional, academic, and technical interviews. By leveraging advanced Natural Language Processing (NLP) through Google Gemini and sophisticated voice analysis, PrepBot provides a realistic, adaptive, and highly personalized interview experience.
 
 ---
+=======
+<p align="center">
+🚀 AI-Powered Interview Simulation | Text & Voice | STAR Method Evaluation | Adaptive Questioning
+</p>
+   
+<hr>
+>>>>>>> edc95616e2bb25ea5a28db5af7fdd9ead6080572
 
 ## 📑 Table of Contents
 1. [Project Vision & Overview](#-project-vision--overview)

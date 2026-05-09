@@ -2,10 +2,10 @@
   "name": "prepbot-ai-interview-assistant",
   "version": "1.0.0",
   "description": "<h1 align=\"center\">🤖 PrepBot – AI Interview Assistant</h1>",
-  "main": "backend/server.js",
+  "main": "Backend/server.js",
   "scripts": {
-    "start": "node backend/server.js",
-    "dev": "nodemon backend/server.js",
+    "start": "node Backend/server.js",
+    "dev": "nodemon Backend/server.js",
     "build": "echo \"No build step required. Static frontend is served from Frontend folder.\"",
     "postinstall": "echo \"Ensure dependencies installed for backend and frontend.\"",
     "test": "echo \"Error: no test specified\" && exit 1"
