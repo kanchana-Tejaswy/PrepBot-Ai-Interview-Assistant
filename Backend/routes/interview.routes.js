@@ -3,8 +3,9 @@ const router = express.Router();
 const multer = require('multer');
 const interviewController = require('../controllers/interview.controller');
 
-// Setup multer for audio file uploads
-const upload = multer({ dest: 'uploads/' });
+// Setup multer for memory storage (required for Vercel serverless functions)
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 // Define interview routes
 router.post('/start-interview', interviewController.startInterview);

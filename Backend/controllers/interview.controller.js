@@ -107,34 +107,23 @@ exports.uploadResume = async (req, res, next) => {
         
         console.log(`[Controller] Processing Resume PDF upload...`);
         
-        // Depending on multer setup, we might have req.file.path (disk) or req.file.buffer (memory)
-        let pdfBuffer;
-        if (req.file.path) {
-            pdfBuffer = fs.readFileSync(req.file.path);
-        } else if (req.file.buffer) {
-            pdfBuffer = req.file.buffer;
-        } else {
-             return res.status(500).json({ error: "File parsing error" });
+        // Use buffer from memoryStorage (Vercel compatible)
+        const pdfBuffer = req.file.buffer;
+
+        if (!pdfBuffer) {
+            return res.status(500).json({ error: "File buffer is empty." });
         }
 
         const pdfData = await pdfParse(pdfBuffer);
         const text = pdfData.text;
 
         if (!text || text.trim().length === 0) {
-            if (req.file.path) fs.unlinkSync(req.file.path);
             return res.status(400).json({ error: "Could not extract text from the provided PDF." });
         }
 
         const analysis = await geminiService.analyzeResume(text);
-        
-        // Cleanup the file from disk if applicable
-        if (req.file.path) fs.unlinkSync(req.file.path);
-        
         res.status(200).json(analysis);
     } catch (error) {
-        if (req.file && req.file.path) {
-             try { fs.unlinkSync(req.file.path); } catch(e){}
-        }
         next(error);
     }
 };

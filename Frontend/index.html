@@ -10,6 +10,9 @@
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -21,14 +24,26 @@
   <nav class="navbar">
     <div class="container nav-flex">
       <a href="/" class="logo">Prep<span>Bot</span></a>
+      <div class="nav-toggle hidden" id="mobileNavToggle">
+        <i data-lucide="menu"></i>
+      </div>
       <div class="nav-links">
-        <a href="#features">Features</a>
-        <a href="#how-it-works">How it works</a>
-        <a href="#testimonials">Reviews</a>
+        <a href="#features" data-i18n="nav_features">Features</a>
+        <a href="#how-it-works" data-i18n="nav_how">How it works</a>
+        <a href="#testimonials" data-i18n="nav_reviews">Reviews</a>
+        
+        <div class="nav-streak" title="Daily Practice Streak" style="display: flex; align-items: center; gap: 4px; color: var(--accent); font-weight: 800;">
+          <i data-lucide="flame"></i> <span id="streakCount">0</span>
+        </div>
+        
+        <button id="langToggle" title="Toggle Language" style="background: transparent; border: none; color: var(--text-main); cursor: pointer; display: flex; align-items: center;">
+          <i data-lucide="globe"></i> <span id="currentLang" style="font-size: 0.75rem; font-weight: 700; margin-left: 2px;">EN</span>
+        </button>
+
         <button id="themeToggle" title="Toggle Theme">
           <i data-lucide="moon" id="themeIcon"></i>
         </button>
-        <button onclick="document.getElementById('startPracticeBtn').click()" class="btn btn-nav">Get Started</button>
+        <button id="getStartedNavBtn" class="btn btn-nav" data-i18n="nav_start">Get Started</button>
       </div>
     </div>
   </nav>
@@ -44,6 +59,18 @@
         <div class="hero-actions">
           <button id="startPracticeBtn" class="btn btn-cta">Start Practice Free <i data-lucide="arrow-right"></i></button>
           <button id="viewDashboardBtnWelcome" class="btn btn-secondary">View Analytics</button>
+        </div>
+        
+        <!-- Jump Back In (Dynamic) -->
+        <div id="quickStartContainer" class="hidden">
+          <div class="quick-start" id="quickStartBtn">
+            <div class="avatar-circle"><i data-lucide="play"></i></div>
+            <div style="text-align: left;">
+              <p style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; opacity: 0.7; margin-bottom: 0.2rem;">Jump Back In</p>
+              <h4 id="quickStartRole">Software Engineer</h4>
+            </div>
+            <i data-lucide="chevron-right" style="margin-left: auto; opacity: 0.5;"></i>
+          </div>
         </div>
       </div>
       <div class="hero-visual reveal-right">
@@ -65,25 +92,27 @@
       </div>
     </header>
 
-    <!-- Social Proof Section -->
+    <!-- Global Expertise Section -->
     <section class="social-proof reveal-up">
       <div class="container">
-        <p>Empowering candidates at top-tier companies</p>
+        <p>Expertise Across Diverse Domains</p>
         <div class="logo-strip">
           <div class="marquee-wrapper">
             <div class="marquee-content">
-              <div class="mock-logo"><i data-lucide="triangle"></i> DELTA</div>
-              <div class="mock-logo"><i data-lucide="hexagon"></i> HEXA</div>
-              <div class="mock-logo"><i data-lucide="circle"></i> ORBIT</div>
-              <div class="mock-logo"><i data-lucide="octagon"></i> ZENITH</div>
-              <div class="mock-logo"><i data-lucide="box"></i> STACK</div>
+              <div class="mock-logo"><i data-lucide="code-2"></i> Technology</div>
+              <div class="mock-logo"><i data-lucide="landmark"></i> Finance</div>
+              <div class="mock-logo"><i data-lucide="stetho-scope"></i> Healthcare</div>
+              <div class="mock-logo"><i data-lucide="megaphone"></i> Marketing</div>
+              <div class="mock-logo"><i data-lucide="graduation-cap"></i> Education</div>
+              <div class="mock-logo"><i data-lucide="shopping-cart"></i> E-commerce</div>
             </div>
             <div class="marquee-content" aria-hidden="true">
-              <div class="mock-logo"><i data-lucide="triangle"></i> DELTA</div>
-              <div class="mock-logo"><i data-lucide="hexagon"></i> HEXA</div>
-              <div class="mock-logo"><i data-lucide="circle"></i> ORBIT</div>
-              <div class="mock-logo"><i data-lucide="octagon"></i> ZENITH</div>
-              <div class="mock-logo"><i data-lucide="box"></i> STACK</div>
+              <div class="mock-logo"><i data-lucide="code-2"></i> Technology</div>
+              <div class="mock-logo"><i data-lucide="landmark"></i> Finance</div>
+              <div class="mock-logo"><i data-lucide="stetho-scope"></i> Healthcare</div>
+              <div class="mock-logo"><i data-lucide="megaphone"></i> Marketing</div>
+              <div class="mock-logo"><i data-lucide="graduation-cap"></i> Education</div>
+              <div class="mock-logo"><i data-lucide="shopping-cart"></i> E-commerce</div>
             </div>
           </div>
         </div>
@@ -104,7 +133,7 @@
           <p>Our AI doesn't follow a script. It listens to your unique answers and asks relevant follow-up questions, just like a real interviewer would in a high-stakes meeting.</p>
         </div>
         <div class="feature-visual">
-          <i data-lucide="brain-circuit"></i>
+          <img src="image/prepbot image 1.webp" alt="Adaptive AI" class="feature-img">
         </div>
       </div>
 
@@ -115,7 +144,7 @@
           <p>Upload your PDF resume and PrepBot will extract your specific skills and projects to generate custom questions tailored perfectly to your professional background.</p>
         </div>
         <div class="feature-visual">
-          <i data-lucide="file-text"></i>
+          <img src="image/prepbot image 2.webp" alt="Resume Analysis" class="feature-img">
         </div>
       </div>
 
@@ -126,9 +155,10 @@
           <p>Practice your verbal communication with confidence. PrepBot analyzes your pacing, filler words, and clarity using state-of-the-art speech-to-text technology.</p>
         </div>
         <div class="feature-visual">
-          <i data-lucide="mic"></i>
+          <img src="image/prepbot image 3 .webp" alt="Voice Analysis" class="feature-img">
         </div>
       </div>
+
     </section>
 
     <!-- How It Works Section -->
@@ -164,37 +194,40 @@
         <h2>What Our Users Say</h2>
         <p>Join the thousands of candidates who have aced their interviews with PrepBot.</p>
       </div>
-      <div class="testimonial-grid">
-        <div class="testimonial-card reveal-up" style="transition-delay: 0.1s;">
-          <p>"PrepBot helped me identify my filler word habit. I felt so much more articulate during my actual technical rounds at Meta!"</p>
-          <div class="user-info">
-            <div class="user-avatar">JS</div>
-            <div>
-              <h4>John Smith</h4>
-              <span>Software Engineer</span>
+      <div class="testimonial-carousel">
+        <div class="testimonial-inner" id="testimonialInner">
+          <div class="testimonial-card">
+            <p>"PrepBot helped me identify my filler word habit. I felt so much more articulate during my actual technical rounds at Meta!"</p>
+            <div class="user-info">
+              <div class="user-avatar">JS</div>
+              <div>
+                <h4>John Smith</h4>
+                <span>Software Engineer</span>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-card">
+            <p>"The resume parsing feature is incredible. The questions were exactly what I was asked in my real Product Manager interview."</p>
+            <div class="user-info">
+              <div class="user-avatar">AD</div>
+              <div>
+                <h4>Alice Doe</h4>
+                <span>Product Manager</span>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-card">
+            <p>"I was nervous about behavioral rounds, but the STAR method feedback changed how I structure my success stories entirely."</p>
+            <div class="user-info">
+              <div class="user-avatar">RK</div>
+              <div>
+                <h4>Robert King</h4>
+                <span>Marketing Lead</span>
+              </div>
             </div>
           </div>
         </div>
-        <div class="testimonial-card reveal-up" style="transition-delay: 0.2s;">
-          <p>"The resume parsing feature is incredible. The questions were exactly what I was asked in my real Product Manager interview."</p>
-          <div class="user-info">
-            <div class="user-avatar">AD</div>
-            <div>
-              <h4>Alice Doe</h4>
-              <span>Product Manager</span>
-            </div>
-          </div>
-        </div>
-        <div class="testimonial-card reveal-up" style="transition-delay: 0.3s;">
-          <p>"I was nervous about behavioral rounds, but the STAR method feedback changed how I structure my success stories entirely."</p>
-          <div class="user-info">
-            <div class="user-avatar">RK</div>
-            <div>
-              <h4>Robert King</h4>
-              <span>Marketing Lead</span>
-            </div>
-          </div>
-        </div>
+        <div class="carousel-dots" id="carouselDots"></div>
       </div>
     </section>
 
@@ -203,7 +236,7 @@
       <div class="cta-box reveal-up">
         <h2>Ready to land your dream job?</h2>
         <p>Start practicing today and join the ranks of high-performing candidates acing interviews worldwide.</p>
-        <button onclick="document.getElementById('startPracticeBtn').click()" class="btn btn-cta">Get Started Now — It's Free <i data-lucide="sparkles"></i></button>
+        <button id="finalCtaBtn" class="btn btn-cta">Get Started Now — It's Free <i data-lucide="sparkles"></i></button>
       </div>
     </section>
 
@@ -242,10 +275,15 @@
   </div>
 
   <!-- App Wrapper: Selection & Interview Screens -->
-  <main class="app-wrapper container">
+  <main class="app-wrapper container hidden">
     
     <!-- 2. Role Selection -->
     <div id="roleScreen" class="hidden app-card">
+      <div class="stepper">
+        <div class="step-pill active"></div>
+        <div class="step-pill"></div>
+        <div class="step-pill"></div>
+      </div>
       <h2>Select Your Role</h2>
       <p class="subtitle">Personalize your interview session for maximum impact.</p>
       
@@ -274,7 +312,8 @@
             <option value="custom">Custom role</option>
           </optgroup>
         </select>
-        <input type="text" id="customRoleInput" class="hidden" placeholder="Enter your custom role">
+        <p style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.7;">e.g., Software Engineer, Product Manager, or Teacher</p>
+        <input type="text" id="customRoleInput" class="hidden" placeholder="Enter your custom role (e.g. Cloud Architect)">
         <p id="roleErrorMessage" class="error-msg"></p>
       </div>
 
@@ -282,7 +321,8 @@
 
       <div class="resume-upload">
         <input type="file" id="resumeUploadInput" accept=".pdf" class="hidden">
-        <button onclick="document.getElementById('resumeUploadInput').click()" class="btn btn-secondary"><i data-lucide="upload"></i> Select PDF Resume</button>
+        <button id="selectResumeBtn" class="btn btn-secondary"><i data-lucide="upload"></i> Select PDF Resume</button>
+        <p style="font-size: 0.75rem; margin-top: 0.75rem; opacity: 0.7;">We'll extract skills and generate personalized questions.</p>
         <button id="uploadResumeBtn" class="btn btn-nav" style="margin-top: 1rem;">Analyze & Generate</button>
         <p id="uploadStatusMessage" class="status-msg"></p>
         
@@ -300,36 +340,113 @@
 
     <!-- 3. Interview Mode Selection -->
     <div id="modeScreen" class="hidden app-card">
+      <div class="stepper">
+        <div class="step-pill active"></div>
+        <div class="step-pill active"></div>
+        <div class="step-pill"></div>
+      </div>
       <h2>Choose Mode</h2>
       <p class="subtitle">Selected Role: <span id="modeSelectedRole" class="text-primary"></span></p>
       
       <div class="mode-grid">
         <button id="chatModeBtn" class="btn-mode">
-          <i data-lucide="message-square"></i>
-          <span>Chat Mode</span>
+          <div class="mode-icon"><i data-lucide="message-square"></i></div>
+          <div class="mode-info">
+            <h3>Chat Mode</h3>
+            <p>Practice via professional text-based interface</p>
+          </div>
         </button>
         <button id="voiceModeBtn" class="btn-mode">
-          <i data-lucide="mic"></i>
-          <span>Voice Mode</span>
+          <div class="mode-icon"><i data-lucide="mic"></i></div>
+          <div class="mode-info">
+            <h3>Voice Mode</h3>
+            <p>Real-time speech analysis & verbal clarity</p>
+          </div>
         </button>
       </div>
-      <button id="backToRoleBtn" class="btn btn-text">Back to Roles</button>
+
+      <div class="experience-toggle-section">
+        <p class="toggle-title">Experience Mode</p>
+        <div class="segmented-control">
+          <button id="coachingModeBtn" class="control-btn active-mode">
+            <i data-lucide="graduation-cap"></i> Coaching
+          </button>
+          <button id="examModeBtn" class="control-btn">
+            <i data-lucide="timer"></i> Simulated Exam
+          </button>
+        </div>
+        <p id="modeDescription" class="mode-desc-text">Coaching: Receive instant feedback after every answer.</p>
+      </div>
+      
+      <div class="app-actions">
+        <button id="backToRoleBtn" class="btn btn-text">Back to Roles</button>
+      </div>
     </div>
 
-    <!-- 4. Interview Screen -->
-    <div id="interviewScreen" class="hidden app-card wide">
+      <!-- 4. Interview Screen -->
+    <div id="interviewScreen" class="hidden app-card wide" style="position: relative; overflow: visible;">
+      <!-- FOCUS MODE TOGGLE -->
+      <button id="focusModeToggle" class="btn-text" style="position: absolute; top: 1rem; left: 1rem; font-size: 0.8rem; opacity: 0.5;" title="Toggle Focus Mode">
+        <i data-lucide="eye-off"></i> Focus Mode
+      </button>
+
+      <!-- STAR COACH SIDEBAR -->
+      <div id="starCoach" class="star-coach" data-tour="star_coach">
+        <div id="starToggle" class="star-toggle"><i data-lucide="help-circle"></i></div>
+        <h4>The STAR Method</h4>
+        <p style="font-size: 0.75rem; margin-bottom: 1rem; opacity: 0.8;">Use this structure for behavioral answers:</p>
+        <div class="star-point"><strong>S</strong>ituation: Context of the event</div>
+        <div class="star-point"><strong>T</strong>ask: What was required of you</div>
+        <div class="star-point"><strong>A</strong>ction: What you specifically did</div>
+        <div class="star-point"><strong>R</strong>esult: The positive outcome</div>
+      </div>
+
+      <div class="stepper">
+        <div class="step-pill active"></div>
+        <div class="step-pill active"></div>
+        <div class="step-pill active"></div>
+      </div>
+      
       <div class="interview-nav">
-        <span id="progressIndicator">Question 1 of 5</span>
+        <div class="visual-progress-container">
+          <div class="progress-label">
+            <span id="progressText">Question 1 of 5</span>
+            <span id="progressPercent">20%</span>
+          </div>
+          <div class="progress-bar-track">
+            <div id="progressBarFill" class="progress-bar-fill"></div>
+          </div>
+        </div>
         <h3 id="finalRoundLabel" class="hidden" style="background: var(--accent); color: white; padding: 0.3rem 1rem; border-radius: 99px; font-size: 0.8rem; text-transform: uppercase;">Final Round</h3>
+      </div>
+
+      <div class="interviewer-persona" id="personaContainer">
+        <div class="avatar-circle" id="personaAvatar"><i data-lucide="user"></i></div>
+        <div class="persona-info">
+          <h4 id="personaName">AI Interviewer</h4>
+          <p id="personaRole">Technical Recruiter</p>
+        </div>
+        
+        <!-- Recording Visualizer -->
+        <canvas id="voiceWaveformCanvas" class="hidden" style="width: 100px; height: 30px; margin-left: auto;"></canvas>
       </div>
 
       <div class="question-container">
         <p id="questionText">Awaiting question...</p>
       </div>
       
-      <textarea id="answerTextarea" placeholder="Type your comprehensive answer here..."></textarea>
+      <div class="textarea-wrapper" style="position: relative;">
+        <textarea id="answerTextarea" placeholder="Type your comprehensive answer here..."></textarea>
+        <div class="answer-meta">
+          <div class="strength-container">
+            <div id="answerStrengthBar" class="strength-bar"></div>
+          </div>
+          <span id="wordCountDisplay">0 words</span>
+        </div>
+        <p style="text-align: right; font-size: 0.7rem; opacity: 0.5; margin-top: 0.5rem;">Tip: Press Ctrl + Enter to submit</p>
+      </div>
       
-      <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem;">
+      <div style="display: flex; gap: 1rem; justify-content: center; margin: 2rem 0;">
         <button id="voiceAnswerBtn" class="hidden btn" style="background: var(--danger); color: white; padding: 0.8rem 1.5rem;">
           <i data-lucide="mic"></i> <span>Start Recording</span>
         </button>
@@ -337,18 +454,40 @@
       </div>
       
       <div id="feedbackSection" class="hidden feedback-box">
-        <div class="feedback-header">
-          <h3>Instant Feedback</h3>
-          <span class="score-badge" style="background: var(--success); color: white; padding: 0.4rem 1.2rem; border-radius: 99px; font-weight: 800;">Score: <span id="feedbackScore"></span>/10</span>
-        </div>
-        <div class="feedback-content" style="text-align: left; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
-          <div class="fb-col">
-            <h4 style="color: var(--text-main); font-size: 0.9rem; text-transform: uppercase; margin-bottom: 1rem;">Strengths</h4>
-            <ul id="feedbackStrengths" class="fb-list"></ul>
+        <!-- Skeleton Loader (Shown during analysis) -->
+        <div id="feedbackSkeleton" class="hidden" style="text-align: left;">
+          <div class="skeleton skeleton-title"></div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+            <div>
+              <div class="skeleton skeleton-text" style="width: 40%;"></div>
+              <div class="skeleton skeleton-text"></div>
+              <div class="skeleton skeleton-text"></div>
+              <div class="skeleton skeleton-text" style="width: 80%;"></div>
+            </div>
+            <div>
+              <div class="skeleton skeleton-text" style="width: 40%;"></div>
+              <div class="skeleton skeleton-text"></div>
+              <div class="skeleton skeleton-text"></div>
+              <div class="skeleton skeleton-text" style="width: 80%;"></div>
+            </div>
           </div>
-          <div class="fb-col">
-            <h4 style="color: var(--text-main); font-size: 0.9rem; text-transform: uppercase; margin-bottom: 1rem;">Improvements</h4>
-            <ul id="feedbackImprovements" class="fb-list"></ul>
+        </div>
+
+        <!-- Real Feedback Content -->
+        <div id="feedbackContent">
+          <div class="feedback-header">
+            <h3>Instant Feedback</h3>
+            <span class="score-badge" style="background: var(--success); color: white; padding: 0.4rem 1.2rem; border-radius: 99px; font-weight: 800;">Score: <span id="feedbackScore"></span>/10</span>
+          </div>
+          <div class="feedback-content" style="text-align: left; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+            <div class="fb-col">
+              <h4 style="color: var(--text-main); font-size: 0.9rem; text-transform: uppercase; margin-bottom: 1rem;">Strengths</h4>
+              <ul id="feedbackStrengths" class="fb-list"></ul>
+            </div>
+            <div class="fb-col">
+              <h4 style="color: var(--text-main); font-size: 0.9rem; text-transform: uppercase; margin-bottom: 1rem;">Improvements</h4>
+              <ul id="feedbackImprovements" class="fb-list"></ul>
+            </div>
           </div>
         </div>
       </div>
@@ -375,17 +514,39 @@
         </div>
       </div>
       
-      <div class="summary-details" style="text-align: left;">
+      <div class="summary-details" style="text-align: left;" id="summaryReportContent">
         <h4 style="margin-top: 2rem; color: var(--text-inverse); font-size: 1.25rem;">Key Performance Strengths</h4>
         <ul id="summaryStrengths" style="margin: 1rem 0 2rem; color: var(--text-main); font-size: 1.1rem; line-height: 1.8;"></ul>
         <h4 style="color: var(--text-inverse); font-size: 1.25rem;">Areas for Growth</h4>
         <ul id="summaryImprovements" style="margin-top: 1rem; color: var(--text-main); font-size: 1.1rem; line-height: 1.8;"></ul>
       </div>
       
-      <div class="app-actions" style="margin-top: 4rem; display: flex; gap: 1.5rem; justify-content: center;">
-        <button id="practiceAgainBtn" class="btn btn-cta">New Session</button>
-        <button id="viewDashboardBtnSummary" class="btn btn-secondary">View Dashboard</button>
+      <div class="app-actions" style="margin-top: 4rem; display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
+        <div style="display: flex; gap: 1.5rem; justify-content: center; width: 100%;">
+          <button id="practiceAgainBtn" class="btn btn-cta">New Session</button>
+          <button id="viewDashboardBtnSummary" class="btn btn-secondary">View Dashboard</button>
+        </div>
+        <div style="display: flex; gap: 1.5rem;">
+          <button id="downloadReportBtn" class="btn btn-text" style="color: var(--primary); font-weight: 700;">
+            <i data-lucide="download"></i> Download Report (PDF)
+          </button>
+          <button id="shareCardBtn" class="btn btn-text" style="color: var(--accent); font-weight: 700;">
+            <i data-lucide="share-2"></i> Share Achievement
+          </button>
+        </div>
       </div>
+    </div>
+
+    <!-- Hidden Share Card for Export -->
+    <div id="shareCardExport" style="position: absolute; left: -9999px; width: 400px; padding: 40px; background: linear-gradient(135deg, #0B0F1A, #141C2E); color: white; border-radius: 24px; font-family: 'Inter', sans-serif; text-align: center; border: 2px solid #4F46E5;">
+      <h2 style="font-family: 'Poppins'; font-size: 24px; color: #F8FAFC; margin-bottom: 5px;">PrepBot</h2>
+      <p style="color: #94A3B8; font-size: 14px; margin-bottom: 30px;">AI Interview Simulation</p>
+      <div style="background: rgba(79, 70, 229, 0.2); width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; border: 4px solid #4F46E5;">
+        <span id="shareCardScore" style="font-size: 48px; font-weight: 800; font-family: 'Poppins'; color: white;">9.5</span>
+      </div>
+      <h3 style="font-size: 20px; color: #10B981; margin-bottom: 10px;">Excellent Performance</h3>
+      <p style="font-size: 16px; color: #F8FAFC; margin-bottom: 5px;">Role: <strong id="shareCardRole">Software Engineer</strong></p>
+      <p style="font-size: 12px; color: #94A3B8; margin-top: 30px;">PrepBot AI Assistant • Master your next interview</p>
     </div>
 
     <!-- 6. Analytics Dashboard Screen -->
@@ -396,7 +557,7 @@
       </div>
       
       <div id="dashboardContent" class="hidden">
-        <div class="metrics-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-bottom: 4rem;">
+        <div class="metrics-grid">
           <div class="metric" style="background: var(--bg-secondary); padding: 2.5rem; border-radius: 24px; border: 1px solid var(--border); box-shadow: var(--shadow-md);">
             <label style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-main);">Total Sessions</label>
             <p id="dashTotalInterviews" style="font-size: 3rem; font-weight: 900; color: var(--primary);">0</p>
@@ -411,11 +572,16 @@
           </div>
         </div>
 
-        <div class="chart-container" style="background: var(--bg-secondary); padding: 3rem; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 4rem; height: 400px;">
-          <canvas id="scoreChart"></canvas>
+        <div class="chart-container" style="background: var(--bg-secondary); padding: 3rem; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 4rem; height: 400px; display: flex; gap: 2rem;">
+          <div style="flex: 2; position: relative;">
+            <canvas id="scoreChart"></canvas>
+          </div>
+          <div style="flex: 1; position: relative; display: flex; align-items: center; justify-content: center;">
+            <canvas id="radarChart"></canvas>
+          </div>
         </div>
 
-        <div class="analysis-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; text-align: left;">
+        <div class="analysis-grid">
           <div class="analysis-box" style="background: var(--bg-secondary); padding: 2.5rem; border-radius: 24px; border: 1px solid var(--border);">
             <h4 style="font-size: 1.1rem; color: var(--text-inverse); margin-bottom: 1.5rem;">Recurring Strengths</h4>
             <ul id="dashTopStrengths" style="line-height: 1.8;"></ul>
@@ -434,7 +600,15 @@
 
       <div id="dashboardEmptyState" class="empty-state" style="padding: 6rem 0; opacity: 0.7;">
         <i data-lucide="bar-chart-3" style="width: 80px; height: 80px; color: var(--text-main); margin-bottom: 2rem;"></i>
-        <p style="font-size: 1.25rem;">Complete your first session to see your progress analytics here.</p>
+        <p style="font-size: 1.25rem; margin-bottom: 3rem;">Complete your first session to see your progress analytics here.</p>
+        <div class="blueprint-chart">
+           <div style="position: absolute; bottom: 40px; left: 10%; width: 80%; height: 2px; background: var(--primary); opacity: 0.5;"></div>
+           <div style="position: absolute; bottom: 40px; left: 10%; width: 2px; height: 120px; background: var(--primary); opacity: 0.5;"></div>
+           <div style="position: absolute; bottom: 60px; left: 20%; width: 10%; height: 40px; background: var(--primary); opacity: 0.2;"></div>
+           <div style="position: absolute; bottom: 60px; left: 35%; width: 10%; height: 80px; background: var(--primary); opacity: 0.2;"></div>
+           <div style="position: absolute; bottom: 60px; left: 50%; width: 10%; height: 60px; background: var(--primary); opacity: 0.2;"></div>
+           <div style="position: absolute; bottom: 60px; left: 65%; width: 10%; height: 100px; background: var(--primary); opacity: 0.2;"></div>
+        </div>
       </div>
     </div>
   </main>
@@ -450,6 +624,7 @@
     const observer = new MutationObserver(() => initIcons());
     observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style'] });
   </script>
+  <div id="toastContainer" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 9999; display: flex; flex-direction: column; gap: 1rem;"></div>
   <script src="script.js"></script>
 </body>
 </html>
