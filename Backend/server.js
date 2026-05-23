@@ -21,21 +21,26 @@ app.use(cors());
 // Enable JSON middleware to parse incoming request bodies
 app.use(express.json());
 
-// Serve static frontend files
-app.use(express.static(path.join(__dirname, '../frontend')));
+// Serve static frontend files (Development only)
+// On Vercel, static files are handled by the routing configuration in vercel.json
+if (process.env.NODE_ENV !== 'production') {
+    app.use(express.static(path.join(__dirname, '../frontend')));
+}
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.status(200).json({ status: "server running" });
+    res.status(200).json({ status: "server running", env: process.env.NODE_ENV });
 });
 
 // Configure base path for interview routes
 app.use('/api/interview', interviewRoutes);
 
-// Redirect any other request to the frontend index page
-app.use((req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
+// Catch-all route (Development only)
+if (process.env.NODE_ENV !== 'production') {
+    app.use((req, res) => {
+        res.sendFile(path.join(__dirname, '../frontend/index.html'));
+    });
+}
 
 // Global Error Handler Middleware
 app.use((err, req, res, next) => {

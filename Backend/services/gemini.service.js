@@ -18,7 +18,7 @@ const generateQuestion = async (role, previousAnswers = []) => {
             return `MOCK QUESTION: Can you tell me about your experience as a ${role}?`;
         }
 
-        const model = genAI.getGenerativeModel({ model: "models/gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         
         const prompt = `You are an expert HR technical interviewer. The candidate is applying for the role of: ${role}.
         Previous answers provided by the candidate: ${JSON.stringify(previousAnswers)}.
@@ -50,7 +50,7 @@ const evaluateAnswer = async (question, answer, role, history = []) => {
             };
         }
 
-        const model = genAI.getGenerativeModel({ model: "models/gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         
         const prompt = `You are an expert HR interviewer evaluating a candidate for the role of ${role}.
         The question asked was:
@@ -113,7 +113,7 @@ const generateMockInterview = async (role, resumeData) => {
             return `MOCK INTERVIEW STARTED: Welcome. Let's begin the interview for ${role}.`;
         }
 
-        const model = genAI.getGenerativeModel({ model: "models/gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         
         const prompt = `You are an expert HR technical interviewer. Create a mock interview flow for the role of ${role}.
         The candidate's background/resume data: ${JSON.stringify(resumeData || {})}.
@@ -152,7 +152,7 @@ const analyzeResume = async (resumeText) => {
             };
         }
 
-        const model = genAI.getGenerativeModel({ model: "models/gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         
         const prompt = `You are an expert technical interviewer. Analyze the following resume:
         ${resumeText}
